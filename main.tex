@@ -1,5 +1,13 @@
 \documentclass{article}
 \usepackage[utf8]{inputenc}
+\usepackage[backend=biber,
+style=numeric,
+citestyle=numeric]{biblatex}
+\usepackage{url}
+\usepackage{csquotes}
+
+\addbibresource{citations.bib}
+
 
 \title{Detecting Spurious Correlations in Image Annotations}
 \author{Felix Möller}
@@ -9,13 +17,19 @@
 
 \maketitle
 \tableofcontents
+\newpage
 \section{Abstract}
-
+Neural networks and especially Convolutional Neural Networks (CNN) have revolutionized the field of computer vision in the recent years. While neural networks become more refined every year they also become more complex and difficult to interpret. However, interpretability is important because it allows researchers to investigate whether they their models make their predictions by "learning from the right thing" or not. Surprisingly, recent research has shown that many models' predictions rely on so-called spurious correlations. In this report, I will present overview over the existing methods and compare them with regard to their usability. Next, I will show what should and what should not be done to mitigate the impact of spurious correlations on classification accuracy and finally I will propose a workflow to handle datasets that could contain spurious correlations. 
 \section{Introduction}
-\subsection{What is a spurious correlation?}
-\subsection{Common types of spurious correlations}
+\subsection{What is a spurious correlation (s.c.)?}
+Before we have a look at the impact of spurious correlations on image datasets we first need to focus on what spurious correlations are. According to \cite{sc_def} a spurious correlation is a \enquote{connection between to variables that appears causal but is not}. This means that there \textit{appears} to be a logical explanation for the co-movement of both variables when the correlation is in fact completely random. In this report, I will only have a look at spurious correlations that exist between a given feature of the dataset (e.g. the background of the image)and the target value (e.g. the age of a person). The section \enquote{Why is detecting s.c.s in image datasets difficult?} mention why this is especially problematic in a machine learning context.
+
+\subsection{Common types of s.c.s in image datasets}
+Modern research has worked out two commonly occurring types of spurious correlations. The first one is \textbf{s.c. between image angle and target} \cite{}
+
 \subsection{Why study spurious correlations?}
-\subsection{Why is detecting spurious correlations in image datasets difficult?}
+
+\subsection{Why is detecting s.c.s in image datasets difficult?}
 
 \section{Detecting spurious correlations}
 \subsection{Overview}
@@ -32,6 +46,6 @@
 
 \section{Conclusion}
 
-
+\printbibliography
 
 \end{document}
