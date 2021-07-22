@@ -5,6 +5,10 @@ style=numeric,
 citestyle=numeric]{biblatex}
 \usepackage{url}
 \usepackage{csquotes}
+\usepackage{pgfplots}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.7}
+\usepackage{tikz}
 
 \addbibresource{citations.bib}
 
@@ -30,7 +34,31 @@ Modern research has worked out two commonly occurring types of spurious correlat
 The next commonly occurring spurious correlation between \textbf{context} and \textbf{target} \cite{Singh_2020_CVPR}. Spurious correlations between context and target occur in datasets where a non-target object co-occurs with the target object. One example would be cars which are commonly depicted with people. A classifier trained on a dataset with a spurious correlation between context and target might infer that the target value has to occur with its spuriously correlated non-target object. So in our car example, a classifier might only detect a car if a person is also present in the image.
 
 \subsection{Why study spurious correlations?}
-Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlations impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its color into the classic MNIST dataset \cite{mnist}, meaning they assigned a mean color to every digit in the training set and then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and ${\sigma^2}_{train})$ is the variance of the normal distribution which was altered between iterations. The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there is no spurious correlation in the test dataset. The degree of the spurious correlation between digit and color in the training set depends on ${\sigma^2}_{train}$ with a low value indicating a high degree of the spurious correlation and vice-versa.
+Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlations impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its color into the classic MNIST dataset \cite{mnist}, meaning they assigned a mean color to every digit in the training set and then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and ${\sigma^2}_{train})$ is the variance of the normal distribution which was altered between iterations. The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there is no spurious correlation in the test dataset. The degree of the spurious correlation between digit and color in the training set depends on ${\sigma^2}_{train}$ with a low value indicating a high degree of the spurious correlation and vice-versa. The evaluation results can be seen in Figure \ref{fig:mnist_graph}. Although the spurious correlation would most likely be noticed in practice for very low $\sigma^2$, it is clear to see that even for the highest $\sigma^2$
+
+\begin{figure}[!ht]
+    \centering
+    \begin{tikzpicture}
+    \begin{axis}[
+        xlabel = $\sigma^2$,
+        ylabel = Accuracy,
+        width=10cm,
+        height=7cm,
+    ]
+    \addplot[color=red, mark=.] coordinates {
+        (0.02,0.4)
+        (0.025,0.48)
+        (0.03,0.6)
+        (0.035,0.66)
+        (0.04,0.73)
+        (0.045,0.8)
+        (0.05, 0.84)
+    };
+    \end{axis}
+    \end{tikzpicture}
+    \caption{Effect of a spurious correlation between color and digit in the classic MNIST dataset on classification accuracy. A lower variance indicates a more severe spurious correlation and vice-versa.}
+    \label{fig:mnist_graph}
+\end{figure}
 
 \subsection{Why is detecting s.c.s in image datasets difficult?}
 
