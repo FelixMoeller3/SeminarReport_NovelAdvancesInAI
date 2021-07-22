@@ -9,6 +9,7 @@ citestyle=numeric]{biblatex}
 \usepackage{pgfplotstable}
 \pgfplotsset{compat=1.7}
 \usepackage{tikz}
+\usepackage{hyperref}
 
 \addbibresource{citations.bib}
 
@@ -34,9 +35,9 @@ Modern research has worked out two commonly occurring types of spurious correlat
 The next commonly occurring spurious correlation between \textbf{context} and \textbf{target} \cite{Singh_2020_CVPR}. Spurious correlations between context and target occur in datasets where a non-target object co-occurs with the target object. One example would be cars which are commonly depicted with people. A classifier trained on a dataset with a spurious correlation between context and target might infer that the target value has to occur with its spuriously correlated non-target object. So in our car example, a classifier might only detect a car if a person is also present in the image.
 
 \subsection{Why study spurious correlations?}
-Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlations impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its color into the classic MNIST dataset \cite{mnist}, meaning they assigned a mean color to every digit in the training set and then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and ${\sigma^2}_{train})$ is the variance of the normal distribution which was altered between iterations. The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there is no spurious correlation in the test dataset. The degree of the spurious correlation between digit and color in the training set depends on ${\sigma^2}_{train}$ with a low value indicating a high degree of the spurious correlation and vice-versa. The evaluation results can be seen in Figure \ref{fig:mnist_graph}. Although the spurious correlation would most likely be noticed in practice for very low $\sigma^2$, it is clear to see that even for the highest $\sigma^2$
+Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlations impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its color into the classic MNIST dataset \cite{mnist}, meaning they assigned a mean color to every digit in the training set and then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and ${\sigma^2}_{train}$ is the variance of the normal distribution which was altered between iterations. The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there is no spurious correlation in the test dataset. The degree of the spurious correlation between digit and color in the training set depends on ${\sigma^2}_{train}$ with a low value indicating a high degree of the spurious correlation and vice-versa. The evaluation results can be seen in  \hyperref[fig:mnistGraph]{Figure 1}. Although the spurious correlation would most likely be noticed in practice for very low $\sigma^2$, it is clear to see that even for the highest $\sigma^2$ the drop in classification accuracy is still significant (keep in mind that state-of-the-art classifiers can easily obtain above 95 \% test accuracy on the MNIST dataset \cite{mnist_web}).
 
-\begin{figure}[!ht]
+\begin{figure}
     \centering
     \begin{tikzpicture}
     \begin{axis}[
@@ -56,14 +57,38 @@ Datasets containing spurious correlations can significantly diminish the accurac
     };
     \end{axis}
     \end{tikzpicture}
-    \caption{Effect of a spurious correlation between color and digit in the classic MNIST dataset on classification accuracy. A lower variance indicates a more severe spurious correlation and vice-versa.}
-    \label{fig:mnist_graph}
+    \caption{Effect of a spurious correlation between color and digit on classification accuracy in the classic MNIST dataset. A lower variance indicates a more severe spurious correlation and vice-versa.}
+    \label{fig:mnistGraph}
 \end{figure}
 
 \subsection{Why is detecting s.c.s in image datasets difficult?}
+\label{sec:challenges}
+Detecting spurious correlations in a given dataset is a challenge, regardless of whether the dataset contains
+text data, plain numbers or images. The problem remains to evaluate if a given correlation is spurious or not.
+Whilst determining the causality of a correlation is often easy for humans because they are able to make use of
+their human intuition, computers would have to inspect an infinite amount of images to classify a correlation as
+(not) spurious. However a machine-learning model only has a limited amount of data to train on and the training
+set it is given could misrepresent the concept it is trained for (i.e. contain spurious correlations). 
+In such a case, the model would most likely rely on the spurious correlation(s) which is present in the training set.
+An additional challenge in the context of image datasets is feature-extraction. Determining the correlation
+between a given feature of a dataset and the target attribute (e.g. the correlation between the presence of a special word
+and target attribute) can be automated when the dataset contains text data. Extracting high-level features such as
+the location of an object in an image or the image angle it is captured from would require training
+an additional classifier to detect the concept. Such a classifier could however make its predictions by exploiting spurious
+correlations which makes this way of feature-extraction unreliable.
+The last option is to inspect the dataset manually. While this is the most reliable method to detect spurious correlations, the sheer size of modern image datasets (IMDB-WIKI: 523,000 images \cite{Rothe-ICCVW-2015}, MS COC0: 328,000 images \cite{lin2015microsoft}) makes manual detection of spurious correlations infeasible.
 
 \section{Detecting spurious correlations}
-\subsection{Overview}
+Despite the significant negative impact of spurious correlations on classification accuracy,
+detecting spurious correlations remains largely unexplored to this day.
+Nevertheless researchers have proposed a handful of algorithms to detect spurious correlations
+in image datasets. These can be grouped into two categories: The first one is \textbf{human-based detection}
+which relies on inspecting a dataset manually to detect spurious correlations. Although I have mentioned that
+manually inspecting image datasets is not feasible in \hyperref[sec:challenges]{Section 2.4},
+there are algorithms which rely on humans to detect spurious correlations. One member of this category is
+crowdsourcing, which makes use of volunteers to speed up the detection process and increase its reliability.
+The second category is \textbf{Detection via model explanations}. Algorithms
+
 \subsection{Crowdsourcing}
 \subsection{Grad-CAM}
 \subsection{TCAV}
