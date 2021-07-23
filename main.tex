@@ -99,14 +99,21 @@ After step 3, the total weight $W_{i}=w_{i,2} \cdot w_{i,3}$ is assigned to each
 \begin{figure}
     \centering
     \includegraphics[scale=0.315]{crowdsourcing.png}
-    \caption{Crowsourcing approach to detect spurious correlations in image datasets, proposed by Hu et al. \cite{10.1145/3366423.3380063}}
+    \caption{Crowdsourcing approach to detect spurious correlations in image datasets, proposed by Hu et al. \cite{10.1145/3366423.3380063}}
     \label{fig:crowdsourcing}
 \end{figure}
 In summary, Crowdsourcing can be seen as an effective algorithm because it largely relies on human intuition to detect spurious correlations. An additional benefit of this approach is that it is conducted by working directly on the dataset which makes it superior to model explanations. \\
 In both studies conducted by Hu et al. more than 10 volunteers per 100 images took part in the study. Even if one were to inspect only a small fraction of the dataset, one would need in excess of 100 volunteers! The fact that Crowdsourcing relies on such a large amount of volunteers is ambivalent. On the one hand, relying on multiple volunteers decreases the bias towards the perceptions of a small group and leads to finding more spurious correlations. However to most people needing to inspect a dataset such a large group of volunteers is unattainable and relying on humans to detect spurious correlations is time-consuming. Another problem with Crowdsourcing is that the output often contains incorrect detections. In the second study conducted by Hu et al. in which the volunteers inspected a car dataset two of the top 10 outputs were \enquote{No cars have rust} and \enquote{Each car is fueled by gasoline}. \\
 In conclusion, Crowdsourcing is an effective approach to detect spurious correlations in image annotations but the high amount of time and effort it requires make it only applicable to frequently used datasets.
 \subsection{Grad-CAM}
+Grad-CAM highlights the parts of an image that contributed
 
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.05]{grad_cam_overview.png}
+    \caption{Overview of Grad-CAM, proposed by Selvaraju et al. \cite{Selvaraju_2017_ICCV}. Grad-CAM explains a CNN-model by inspecting its final convolutional layer. The output of Grad-CAM can be pointwise multiplied with the output of an algorithm called Guided Backpropagation \cite{springenberg2015striving} to receive a more detailed explanation}
+    \label{fig:my_label}
+\end{figure}
 \subsection{TCAV}
 \subsection{Comparing existing methods to detect spurious correlations}
 
