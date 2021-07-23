@@ -10,16 +10,17 @@ citestyle=numeric]{biblatex}
 \pgfplotsset{compat=1.7}
 \usepackage{tikz}
 \usepackage{hyperref}
+\usepackage{graphicx}
 
 \addbibresource{citations.bib}
-
+\graphicspath{{images/}}
 
 \title{Detecting Spurious Correlations in Image Annotations}
 \author{Felix Möller}
 \date{August 10th, 2021}
 
 \begin{document}
-
+%TODO: Paragraphs, scale of Figure 1
 \maketitle
 \tableofcontents
 \newpage
@@ -39,7 +40,7 @@ Datasets containing spurious correlations can significantly diminish the accurac
 
 \begin{figure}
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[scale=0.8]
     \begin{axis}[
         xlabel = $\sigma^2$,
         ylabel = Accuracy,
@@ -86,11 +87,26 @@ in image datasets. These can be grouped into two categories: The first one is \t
 which relies on inspecting a dataset manually to detect spurious correlations. Although I have mentioned that
 manually inspecting image datasets is not feasible in \hyperref[sec:challenges]{Section 2.4},
 there are algorithms which rely on humans to detect spurious correlations. One member of this category is
-crowdsourcing, which makes use of volunteers to speed up the detection process and increase its reliability.
-The second category is \textbf{Detection via model explanations}. Algorithms
+Crowdsourcing \cite{10.1145/3366423.3380063}, which makes use of volunteers to speed up the detection process and increase its reliability.
+The second category is \textbf{Detection via model explanations}. Methods belonging to this category inspect a model trained on the given dataset to check if the model exploits spurious correlations to make its predictions. This can either be done by highlighting the parts of an image which contributed to the classification or by testing if the model responds to a user-defined concept. Gradient-weighted Class Activation Mapping (Grad-CAM) \cite{Selvaraju_2017_ICCV} makes use of the former, while Testing with concept activation vectors (TCAV) \cite{pmlr-v80-kim18d} relies on the latter.
 
 \subsection{Crowdsourcing}
+The main principle of Hu et al.'s Crowdsourcing approach \cite{10.1145/3366423.3380063} is to distribute the given dataset among all multiple volunteers to reduce the individual effort of each person. A brief summary of their approach can be seen in \hyperref[fig:crowdsourcing]{Figure 2}. \\
+Their proposed algorithm consists of three steps: Step 1 is called \textbf{Question generation}. In this step each volunteer is provided with a random sample of the dataset. Next, each volunteer creates questions regarding anomalies he has found in his sample of the dataset where the answer to such a question is the given anomaly (the answer is also given by the volunteer). Between step 2 and step 1 all similar questions are merged via spaCy, an open-source natural language processing tool \cite{spaCy}. \\
+In Step 2 which is called \textbf{Answer collection} the dataset is again randomly distributed among the volunteers of this step. Note that a volunteer only participates in one step of the process to increase its reliability. Among with a sample of the dataset a volunteer is confronted with question generated in step 1 which he answers with the anomaly he sees in his sample of the dataset. If the volunteer sees no anomaly in his sample, he can skip the question. Between steps 2 and 3 a weight $w_{i,2}$ is assigned to each potential spurious correlation $i$ which is the fraction of volunteers who provided the most common answer (similar answers to a question are merged). In addition, each question is transformed into a statement. \\
+In Step 3 which is called \textbf{Bias Judgement} another group of volunteers is confronted with the statements generated at the end of step 2. Most importantly, the volunteers do not see the dataset. They then have to answer whether or not the given statements reflect the real world (yes/no answers only). At the end of step 3 another weight $w_{i,3}$ is assigned to each potential spurious correlation $i$ which is the fraction of workers stating that the statement belonging to a potential spurious correlation is not an accurate reflection of the real world. \\
+After step 3, the total weight $W_{i}=w_{i,2} \cdot w_{i,3}$ is assigned to each potential spurious correlation the idea behind the computation of the total weight is that the severity of each potential spurious correlation is determined by how abnormal it is (determined in step 3)\textit{and} by how present it is in the dataset (determined in step 2). All spurious correlations with $W_i > t$ are the output of the algorithm where $t$ is a threshold which can be chosen by the conductors of the algorithm. \\
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.315]{crowdsourcing.png}
+    \caption{Crowsourcing approach to detect spurious correlations in image datasets, proposed by Hu et al. \cite{10.1145/3366423.3380063}}
+    \label{fig:crowdsourcing}
+\end{figure}
+In summary, Crowdsourcing can be seen as an effective algorithm because it largely relies on human intuition to detect spurious correlations. An additional benefit of this approach is that it is conducted by working directly on the dataset which makes it superior to model explanations. \\
+In both studies conducted by Hu et al. more than 10 volunteers per 100 images took part in the study. Even if one were to inspect only a small fraction of the dataset, one would need in excess of 100 volunteers! The fact that Crowdsourcing relies on such a large amount of volunteers is ambivalent. On the one hand, relying on multiple volunteers decreases the bias towards the perceptions of a small group and leads to finding more spurious correlations. However to most people needing to inspect a dataset such a large group of volunteers is unattainable and relying on humans to detect spurious correlations is time-consuming. Another problem with Crowdsourcing is that the output often contains incorrect detections. In the second study conducted by Hu et al. in which the volunteers inspected a car dataset two of the top 10 outputs were \enquote{No cars have rust} and \enquote{Each car is fueled by gasoline}. \\
+In conclusion, Crowdsourcing is an effective approach to detect spurious correlations in image annotations but the high amount of time and effort it requires make it only applicable to frequently used datasets.
 \subsection{Grad-CAM}
+
 \subsection{TCAV}
 \subsection{Comparing existing methods to detect spurious correlations}
 

@@ -56,3 +56,92 @@ howpublished={\url{http://yann.lecun.com/exdb/mnist/}}
       archivePrefix={arXiv},
       primaryClass={cs.CV}
 }
+@inproceedings{10.1145/3366423.3380063,
+author = {Hu, Xiao and Wang, Haobo and Vegesana, Anirudh and Dube, Somesh and Yu, Kaiwen and Kao, Gore and Chen, Shuo-Han and Lu, Yung-Hsiang and Thiruvathukal, George K. and Yin, Ming},
+title = {Crowdsourcing Detection of Sampling Biases in Image Datasets},
+year = {2020},
+isbn = {9781450370233},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3366423.3380063},
+doi = {10.1145/3366423.3380063},
+abstract = {Despite many exciting innovations in computer vision, recent studies reveal a number
+of risks in existing computer vision systems, suggesting results of such systems may
+be unfair and untrustworthy. Many of these risks can be partly attributed to the use
+of a training image dataset that exhibits sampling biases and thus does not accurately
+reflect the real visual world. Being able to detect potential sampling biases in the
+visual dataset prior to model development is thus essential for mitigating the fairness
+and trustworthy concerns in computer vision. In this paper, we propose a three-step
+crowdsourcing workflow to get humans into the loop for facilitating bias discovery
+in image datasets. Through two sets of evaluation studies, we find that the proposed
+workflow can effectively organize the crowd to detect sampling biases in both datasets
+that are artificially created with designed biases and real-world image datasets that
+are widely used in computer vision research and system development.},
+booktitle = {Proceedings of The Web Conference 2020},
+pages = {2955–2961},
+numpages = {7},
+keywords = {image dataset, sampling bias, crowdsourcing, workflow design},
+location = {Taipei, Taiwan},
+series = {WWW '20}
+}
+@InProceedings{Selvaraju_2017_ICCV,
+author = {Selvaraju, Ramprasaath R. and Cogswell, Michael and Das, Abhishek and Vedantam, Ramakrishna and Parikh, Devi and Batra, Dhruv},
+title = {Grad-CAM: Visual Explanations From Deep Networks via Gradient-Based Localization},
+booktitle = {Proceedings of the IEEE International Conference on Computer Vision (ICCV)},
+month = {Oct},
+year = {2017}
+}
+
+@InProceedings{pmlr-v80-kim18d,
+  title = 	 {Interpretability Beyond Feature Attribution: Quantitative Testing with Concept Activation Vectors ({TCAV})},
+  author =       {Kim, Been and Wattenberg, Martin and Gilmer, Justin and Cai, Carrie and Wexler, James and Viegas, Fernanda and sayres, Rory},
+  booktitle = 	 {Proceedings of the 35th International Conference on Machine Learning},
+  pages = 	 {2668--2677},
+  year = 	 {2018},
+  editor = 	 {Dy, Jennifer and Krause, Andreas},
+  volume = 	 {80},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {10--15 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v80/kim18d/kim18d.pdf},
+  url = 	 {http://proceedings.mlr.press/v80/kim18d.html},
+  abstract = 	 {The interpretation of deep learning models is a challenge due to their size, complexity, and often opaque internal state. In addition, many systems, such as image classifiers, operate on low-level features rather than high-level concepts. To address these challenges, we introduce Concept Activation Vectors (CAVs), which provide an interpretation of a neural net’s internal state in terms of human-friendly concepts. The key idea is to view the high-dimensional internal state of a neural net as an aid, not an obstacle. We show how to use CAVs as part of a technique, Testing with CAVs (TCAV), that uses directional derivatives to quantify the degree to which a user-defined concept is important to a classification result–for example, how sensitive a prediction of “zebra” is to the presence of stripes. Using the domain of image classification as a testing ground, we describe how CAVs may be used to explore hypotheses and generate insights for a standard image classification network as well as a medical application.}
+}
+@misc{tong2020investigating,
+      title={Investigating Bias in Image Classification using Model Explanations}, 
+      author={Schrasing Tong and Lalana Kagal},
+      year={2020},
+      eprint={2012.05463},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+@InProceedings{Singh_2020_CVPR,
+author = {Singh, Krishna Kumar and Mahajan, Dhruv and Grauman, Kristen and Lee, Yong Jae and Feiszli, Matt and Ghadiyaram, Deepti},
+title = {Don't Judge an Object by Its Context: Learning to Overcome Contextual Bias},
+booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+month = {June},
+year = {2020}
+}
+
+@InProceedings{pmlr-v119-sagawa20a,
+  title = 	 {An Investigation of Why Overparameterization Exacerbates Spurious Correlations},
+  author =       {Sagawa, Shiori and Raghunathan, Aditi and Koh, Pang Wei and Liang, Percy},
+  booktitle = 	 {Proceedings of the 37th International Conference on Machine Learning},
+  pages = 	 {8346--8356},
+  year = 	 {2020},
+  editor = 	 {III, Hal Daumé and Singh, Aarti},
+  volume = 	 {119},
+  series = 	 {Proceedings of Machine Learning Research},
+  month = 	 {13--18 Jul},
+  publisher =    {PMLR},
+  pdf = 	 {http://proceedings.mlr.press/v119/sagawa20a/sagawa20a.pdf},
+  url = 	 {http://proceedings.mlr.press/v119/sagawa20a.html},
+  abstract = 	 {We study why overparameterization—increasing model size well beyond the point of zero training error—can hurt test error on minority groups despite improving average test error when there are spurious correlations in the data. Through simulations and experiments on two image datasets, we identify two key properties of the training data that drive this behavior: the proportions of majority versus minority groups, and the signal-to-noise ratio of the spurious correlations. We then analyze a linear setting and theoretically show how the inductive bias of models towards “memorizing” fewer examples can cause overparameterization to hurt. Our analysis leads to a counterintuitive approach of subsampling the majority group, which empirically achieves low minority error in the overparameterized regime, even though the standard approach of upweighting the minority fails. Overall, our results suggest a tension between using overparameterized models versus using all the training data for achieving low worst-group error.}
+}
+@MISC{spaCy,
+author = {Explosion},
+title = {spaCy - Industrial-Strength Natural Language Processing},
+month = {July},
+year = {2021},
+howpublished={\url{https://spacy.io}}
+}
