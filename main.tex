@@ -135,8 +135,20 @@ Another problem of Grad-CAM is that one needs to inspect multiple explanations t
 
 
 \subsection{TCAV}
-TCAV \cite{pmlr-v80-kim18d} is an algorithm which detects spurious correlations by testing if a neural network trained on the dataset of interest relies on a user-defined concept when making its predictions. \\
-\textbf{Step 1} requires the user to define the concept of interest 
+TCAV \cite{pmlr-v80-kim18d} is an algorithm which detects spurious correlations by testing if a neural network trained on the dataset of interest relies on a user-defined concept when making its predictions. An overview of the algorithm can be seen in \hyperref[fig:tcav]{Figure 4} \\
+\textbf{Step 1} requires the user to \textbf{define a concept} of interest $c$ (e.g. the stripes of a zebra or the face of a person). The user then collects a set of images that depict the concept and another set containing random images that do \textit{not} belong to the concept. Next, the user chooses a layer $l$ from the neural network which he wants to investigate. \\
+In \textbf{Step 2} the images collected in Step 1 are fed into the neural network and a linear classifier is trained to separate the activations at layer $l$ that belong to the concept from the activations of the random images. The vector orthogonal to the decision boundary is the \textbf{concept activation vector} $v_c$ for the given concept $c$.  \\
+In \textbf{Step 3} a \textbf{TCAV-Score} is assigned to the user-defined concept. To do so, a score $S_{c,k}(i)$ is assigned to each image containing class $k$ in the original dataset with $S_{c,k}(i) = \frac{\partial p_k(i)}{\partial v_c}$, meaning that $S_{c,k}(i)$ is the directional derivative of the prediction probability for class $k$ being present in image $i$ with regard to the concept activation vector. A positive $S_{c,k}(i)$ implies that the presence of concept $c$ in image $i$ positively contributed to is classification as class $k$.
+The final TCAV-Score for a concept is $\frac{|i \in I_k: S_{c,k}(i) > 0 |}{|I_k|}$ where $I_k$ is the set of images in the dataset that contain class $k$. A concept with a high TCAV-Score is most likely a concept that the classifier relies on when making its predictions. \\
+A huge benefit of TCAV is its flexibility towards model architecture: TCAV can be applied to any neural network and it is even possible to choose the layer which one wants to investigate. In addition, the algorithm can be automated so that all the user has to do is define the concept. This is important because it allows people without any machine-learning knowledge to investigate the model. However like Grad-CAM, TCAV is an algorithm that explains a given model an can therefore only detect spurious correlations which the given model exploits. An even bigger problem is that TCAV can only check if the model exploits a spurious correlation if the user has the assumption that this is the case. This means that spurious correlations which do not often occur and are therefore not assumed to be present in the dataset cannot be detected when detecting spurious correlations solely with TCAV. Another problem with TCAV is that it suffers from the \enquote{garbage in, garbage out}-principle: a poorly-defined concept can lead to a low TCAV-Score even if the concept is important. This can happen quite often because properly defining a concept can take time since one has to carefully select images that adequately represent the concept. Tong \& Kagal therefore propose to choose images that contain multiple concepts of interest to make the process of concept definition more efficient \cite{tong2020investigating}.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.02]{grad_cam_overview.png}
+    \caption{Overview of TCAV, proposed by Kim et al. \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined concept significantly contributes to the predictions of a given neural network. The approach consists of three steps: first, the concept }
+    \label{fig:tcav}
+\end{figure}
+
 
 \subsection{Comparing existing methods to detect spurious correlations}
 
