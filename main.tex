@@ -11,6 +11,7 @@ citestyle=numeric]{biblatex}
 \usepackage{tikz}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{amssymb}
 
 \addbibresource{citations.bib}
 \graphicspath{{images/}}
@@ -40,6 +41,7 @@ The next commonly occurring spurious correlation between \textbf{context} and \t
 
 
 \subsection{Why study spurious correlations?}
+\label{sec:motivation}
 Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlations impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its color into the classic MNIST dataset \cite{mnist}, meaning they assigned a mean color to every digit in the training set and then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and ${\sigma^2}_{train}$ is the variance of the normal distribution which was altered between iterations. The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there is no spurious correlation in the test dataset. The degree of the spurious correlation between digit and color in the training set depends on ${\sigma^2}_{train}$ with a low value indicating a high degree of the spurious correlation and vice-versa. The evaluation results can be seen in  \hyperref[fig:mnistGraph]{Figure 1}. Although the spurious correlation would most likely be noticed in practice for very low $\sigma^2$, it is clear to see that even for the highest $\sigma^2$ the drop in classification accuracy is still significant (keep in mind that state-of-the-art classifiers can easily obtain above 95 \% test accuracy on the MNIST dataset \cite{mnist_web}).
 
 \begin{figure}
@@ -145,14 +147,36 @@ A huge benefit of TCAV is its flexibility towards model architecture: TCAV can b
 \begin{figure}
     \centering
     \includegraphics[scale=0.02]{grad_cam_overview.png}
-    \caption{Overview of TCAV, proposed by Kim et al. \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined concept significantly contributes to the predictions of a given neural network. The approach consists of three steps: first, the concept }
+    \caption{Overview of TCAV, proposed by Kim et al. \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined concept is important for the classification of a neural network. The approach consists of three steps: first, the concept of interest is defined and a layer from the neural network is chosen. Next, the concept activation vector is computed. In the final step, a TCAV-Score is asserted to the concept}
     \label{fig:tcav}
 \end{figure}
 
 
 \subsection{Comparing existing methods to detect spurious correlations}
+The three methods to detect spurious correlations mentioned in this report all have different strengths and weaknesses. However to determine the best method to detect spurious correlations it is beneficial to evaluate the quality of each method via the same criteria. Tong \& Kagal \cite{tong2020investigating} have proposed 5 criteria which a reliable method to detect spurious correlations should fulfill. An overview can be seen in \hyperref[tab:comparison]{Table 1}.\\
+The first criterion is \textbf{detecting the spurious correlation}. This means that the method itself should detect the spurious correlation without any input other than the dataset. Grad-CAM and Crowdsourcing fulfill this criterion but TCAV can only confirm or deny the assumption that a given spurious correlation exists in a dataset. \\
+Next, a method to detect spurious correlations should \textbf{detect the degree of the spurious correlation}. Quantifying different spurious correlations is important to determine how prevalent a spurious correlation is in a dataset. The experiment shown in \hyperref[sec:motivation]{Section 2.3} demonstrates how differently varying degrees of the same spurious correlation impact the accuracy of a classifier. Grad-CAM fails to assign a value to each spurious correlation which makes is challenging to estimate the degree of a spurious correlation. The TCAV-Score and weights assigned by Crowdsourcing do not allow for a perfect comparison of different spurious correlations because their computation includes human subjectivity but they at least allow for a rough grouping. \\
+The third criterion is \textbf{efficiency} which a detection method fulfills if it requires little time and human effort. This is the only criterion which no method fulfills because every method requires some form of human effort. Grad-CAM requires the user to inspect classifications, with TCAV the user needs to collect images for a concept and Crowdsourcing involves human effort in every step. Although all methods require human effort Crowdsourcing stands out among TCAV and Grad-CAM not only because of the amount of human effort it requires but especially for the fact that a high number of volunteers is needed. \\
+The next criterion is called \textbf{multiple attribute friendliness}. Multiple attribute friendliness means that the method can detect multiple spurious correlations at the same time. TCAV is not multiple-attribute-friendly because it only allows testing for one concept at a time. Grad-CAM and Crowdsourcing are not concept-driven and therefore allow the detection of multiple spurious correlations simultaneously. \\
+The final criterion called \textbf{human understandability} is fulfilled by methods which do not require human examination or whose results can be interpreted by a human with expert knowledge. While all methods fulfill this criterion it should still be mentioned that the output of Grad-CAM and TCAV can be distorted if they are conducted by laypeople. By contrast Crowdsourcing relies on laypeople.
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{c|| c c c}
+        & Grad-CAM & TCAV & Crowdsourcing \\
+        \hline \hline
+         Detect s.c. & \checkmark & $\times$ & \checkmark\\
+         Detect degree of s.c. & $\times$ & \checkmark & \checkmark \\
+         Efficiency & $\times$ & $\times$ & $\times$ \\
+         Multiple attribute friendliness & \checkmark & $\times$ & \checkmark\\
+         Human understandability & \checkmark & \checkmark & \checkmark\\
+    \end{tabular}
+    \caption{Comparison of all spurious correlation detection methods presented in this report. The evaluation criteria were proposed by Tong \& Kagal \cite{tong2020investigating}. It is clear to see that all methods have different strengths and weaknesses and therefore choosing the right method depends on circumstances such as available time and dataset size}
+    \label{tab:comparison}
+\end{table}
 
 \section{Mitigating the impact of spurious correlations}
+Unfortunately, detecting spurious correlations is 
 \subsection{Why increasing model size exacerbates spurious correlations}
 \subsection{How to mitigate the impact of spurious correlations between context and target}
 
