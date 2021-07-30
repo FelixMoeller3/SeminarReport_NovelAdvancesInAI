@@ -175,11 +175,23 @@ The final criterion called \textbf{human understandability} is fulfilled by meth
     \label{tab:comparison}
 \end{table}
 
+
 \section{Mitigating the impact of spurious correlations}
 Unfortunately, detecting spurious correlations is only the first step of dealing with them. If one has detected spurious correlations in a given image dataset, the best method to mitigate the impact of spurious correlations on classification accuracy is to resample the dataset, so that it contains no more spurious correlations. However, obtaining new image data is not always possible, e.g. for legal/privacy reasons (medical AI) or for financial reasons. In these cases the model needs to be adapted so that is does not learn to generalize on the spurious correlations given in the training set. Contrary to detecting spurious correlations, mitigating their impact has been studied well in the last years. Some important contributions apart from the two mentioned in the following sections are the framework proposed by Bellamy et al. \cite{bellamy2018ai} and the regularization algorithm proposed by Kim et al. \cite{Kim_2019_CVPR}. In addition, Wang et al. \cite{Wang_2020_CVPR} give a good overview of the existing methods to mitigate the impact of spurious correlations on classification performance.
+
 \subsection{Why increasing model size exacerbates spurious correlations}
+A naive approach to mitigating the impact of spurious correlations could be to increase the model size, i.e. increasing the amount of trainable parameters of the model. Although there is no perfect correlation between model size and classification accuracy, in general one can expect a better accuracy from a larger model, at least when it comes to neural networks \cite{8395231}. However, Sagawa et al. \cite{pmlr-v119-sagawa20a} showed that increasing the model size can increase the worst-group error and cause the model to rely on spurious correlations when classifying images which were underrepresented in the training set. They trained a ResNet \cite{He_2016_CVPR} on the CelebA dataset \cite{liu2015faceattributes} and used logistic regression on a custom waterbird dataset for their studies where they varied the width of ResNet and the number of projections of the logistic regression. The results of training with different model sizes can be seen in \hyperref[fig:sagawaImg]{Figure 5}.
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.2]{sagawa_dataset.png}
+    \includegraphics[scale=0.28]{sagawa_diagram_standard.png}
+    \caption{Datasets used and results of a study on the effect of spurious correlations with varying model size conducted by Sagawa et al. \cite{pmlr-v119-sagawa20a}. It is clear to see that both ResNet and logistic regression have difficulty to classify atypical groups as their size increases despite having low training error on these groups.}
+    \label{fig:sagawaImg}
+\end{figure}
 
 \subsection{How to mitigate the impact of spurious correlations between context and target}
+
 
 \section{How to deal with datasets that might contain spurious correlations}
 
