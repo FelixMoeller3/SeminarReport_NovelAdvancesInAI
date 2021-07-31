@@ -31,9 +31,10 @@ Neural networks and especially Convolutional Neural Networks (CNN) have revoluti
 While neural networks become more refined every year they also become more complex and difficult to interpret.
 However, interpretability is important because it allows researchers to investigate whether their models make
 their predictions by "learning from the right thing" or not. Surprisingly, recent research has shown that many models' predictions
-rely on so-called spurious correlations. In this report, I will present overview over the existing methods and compare them
-with regard to their usability. Next, I will show what should and what should not be done to mitigate the impact of spurious
-correlations on classification accuracy and finally I will propose a workflow to handle datasets that could contain spurious correlations. 
+rely on so-called spurious correlations. In this report, I will present an overview over the existing methods
+to detect spurious correlations and compare them with regard to their usability.
+Next, I will show what should and what should not be done to mitigate the impact of spurious correlations on classification
+accuracy and finally I will propose a workflow to handle datasets that could contain spurious correlations. 
 
 
 \section{Introduction}
@@ -369,12 +370,14 @@ The results of training with different model sizes can be seen in \hyperref[fig:
 \end{figure}
 
 \subsection{How to mitigate the impact of spurious correlations between context and target}
+\label{sec:contextSuppr}
 Spurious correlations between context and target are among the most common spurious correlations and it is
 therefore important to mitigate their impact on classification performance. The problem with such spurious correlations
 is that they are not always harmful. The context that an object occurs with can also contain information which is helpful
 for classification. So the challenge in such cases is to improve classification accuracy when an object occurs without
 its context without compromising accuracy when an object co-occurs with its context. This was also the goal of a
-new training procedure proposed by Singh et al. \cite{Singh_2020_CVPR} which works as follows: \\
+new training procedure proposed by Singh et al. \cite{Singh_2020_CVPR} which works as follows
+(overview in \hyperref[fig:contextSupprImg]{Figure 6}): \\
 First, one needs to train a classifier on the given dataset which contains spurious correlations between labeled classes.
 Note that the dataset needs to be multi-labeled. Next, for each class $c$ in the training set, a second class $d$ is
 determined which co-occurs with $c$ frequently and which negatively impacts the prediction probability for class $c$ most.
@@ -408,7 +411,11 @@ they improved the accuracy for \enquote{ski} and \enquote{skateboard}, the two c
 by 24.2 and 19.5 percentage points respectively. By inspecting the classifications made by a neural network trained with their
 approach they verified that the network focuses on the object when is is present without its context while still letting the context contribute to the classification when it is present. \\
 Overall, the approach proposed by Singh et al. is a promising one. Nevertheless, it fails to account for spurious correlations between
-more than two classes. More problematic is that it only seems to effectively mitigate the impact of the most severe spurious correlations. When investigating the performance increase of the 20 most severe spurious correlations instead of the top 2, the performance increase over a standard classifier shrinks to a mere 4.3 percentage points and the classification accuracy remains low at 28.8 \% when these classes occur exclusively.
+more than two classes. More problematic is that it only seems to effectively mitigate the impact of the most severe spurious correlations.
+When investigating the 20 classes suffering from the most severe spurious correlations instead of the top 2, the performance increase
+over a standard classifier shrinks to a mere 4.3 percentage points and the classification accuracy remains low at 28.8 \% when these
+classes occur exclusively.
+
 \begin{figure}
     \centering
     \includegraphics[scale=0.44]{context_suppression.png}
@@ -420,9 +427,48 @@ more than two classes. More problematic is that it only seems to effectively mit
     \label{fig:contextSupprImg}
 \end{figure}
 
+
 \section{How to deal with datasets that might contain spurious correlations}
+To summarize the findings of the previous sections, I have come up with a workflow on how to handle datasets that could contain spurious correlations.
+An overview of the proposed workflow can be seen in \hyperref[fig:workflow]{Figure 7}. \\
+The first step is to create or choose a dataset. Which of the two methods is the best depends largely on the target. If the goal is to classify or
+detect common objects such as cars then it would be better to work with existing datasets such as CompCars in this case \cite{Yang_2015_CVPR}.
+However, if the target is a rare or extraordinary concept such as a specific illness then the best approach is to create a dataset as most likely there will
+not be any existing ones. In other cases, a hybrid approach could make sense. \\
+After one has decided on which dataset to choose the next step is to scan the dataset for spurious correlations. In case time is not an issue
+and volunteers are available the detection method of choice should be Crowdsourcing because it produces the best output, i.e. if finds the most spurious
+correlations and estimates their degree best. If conducting Crowdsourcing is not feasible then I suggest a hybrid approach between Grad-CAM and TCAV which
+combines the strengths of both algorithms: One should first train a neural network on the dataset chosen in step 1 and inspect its predictions with Grad-CAM
+to come up with assumptions for spurious correlations. Next, one should check if these potential spurious correlations hold up with TCAV. \\
+If the previous step did not lead to the detection of any spurious correlation, then the chosen dataset can be used for the given computer vision task. 
+However, in the more likely scenario that one has found spurious correlations, the best way to go is to change or resample the dataset so that it no longer
+contains the spurious correlations that were detected. After that one can start over with scanning the new dataset for spurious correlations again. \\
+Unfortunately, obtaining new image data is not always possible, for example for legal or financial reasons. In that case, one has to adapt the neural network
+to make it robust to the spurious correlations found in the dataset. Since the dataset could contain a spurious correlation between image angle and target
+as well as a spurious correlation between context and target, one should focus on the prevailing spurious correlation which is the one with either
+the highest weight (Crowdsourcing) or the highest TCAV-Score. \\
+If the prevailing spurious correlation is between image angle and target, then using data augmentation (cropping, flipping and/or erasing parts of the image)
+can be used to mitigate the impact of such a spurious correlation on classification accuracy. Research conducted by Agarwal et al. \cite{Agarwal_2020_CVPR}
+supports this thesis. 
+If the prevailing spurious correlation is between context and target, then I suggest using the context suppression algorithm presented in
+\hyperref[sec:contextSuppr]{Section 4.2}. \\
+Note that I have not mentioned any specific parameters to choose for the algorithms used in the workflow. Specific parameter choices depend on how restrictive
+one wants to be when detecting spurious correlations. However it is important to note that most datasets of a certain size contain a least one spurious correlation.
+Therefore the goal should not be to eliminate every single spurious correlation one has found by only the ones that lead to a significant loss in
+classification accuracy.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.38]{sc_workflow.png}
+    \caption{Workflow for dealing with image datasets that might contain spurious correlations}
+    \label{fig:workflow}
+\end{figure}
+
 
 \section{Conclusion}
+In conclusion
+
 
 \printbibliography
 
