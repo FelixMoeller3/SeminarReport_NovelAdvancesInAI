@@ -42,15 +42,15 @@ accuracy and finally I will propose a workflow to handle datasets that could con
 Before we have a look at the impact of spurious correlations on image datasets we first need to focus on what spurious correlations are.
 According to \cite{sc_def} a spurious correlation is a \enquote{connection between to variables that appears causal but is not}.
 This means that there \textit{appears} to be a logical explanation for the co-movement of both variables when the correlation is in fact completely random.
-The section \enquote{Why is detecting s.c.s in image datasets difficult?} mention why this is especially problematic in a machine learning context.
+\hyperref[sec:challenges]{Section 2.4} mentions why this is especially problematic in a machine learning context.
 In this report, I will only have a look at spurious correlations that exist between a given feature of the dataset (e.g. the background of the image)
 and the target value (e.g. the age of a person) as these are the only spurious correlations that might cause the classifier to make wrong generalizations.
 
 
 \subsection{Common types of s.c.s in image datasets}
-Modern research has worked out two commonly occurring types of spurious correlations. The first one is  between \textbf{image angle} and \textbf{target} \cite{5995347}.
-In datasets that contain such a spurious correlation, the target is often shown from a similar angle (e.g. in an image dataset made up of cars all cars could be shown from the front)
-or in the same part of the image (e.g. most of the time the object of interest is in the centre of the image).
+Modern research has worked out two commonly occurring types of spurious correlations. The first one is between \textbf{image angle} and \textbf{target} \cite{5995347}.
+In datasets that contain such a spurious correlation, the target is often shown from a similar angle (e.g. in an image dataset made up of cars all cars
+could be shown from the front) or in the same part of the image (e.g. most of the time the object of interest is in the centre of the image).
 Spurious correlations between image angle and target can be problematic because an image recognition model trained on a dataset
 which contains such a spurious correlation might struggle to classify the target object when it is shown from an angle that was not present in the training dataset. \\
 The next commonly occurring spurious correlation between \textbf{context} and \textbf{target} \cite{Singh_2020_CVPR}.
@@ -337,6 +337,7 @@ By contrast Crowdsourcing relies on laypeople.
 
 
 \section{Mitigating the impact of spurious correlations}
+\label{sec:mitigatingscs}
 Unfortunately, detecting spurious correlations is only the first step of dealing with them. If one has detected
 spurious correlations in a given image dataset, the best method to mitigate the impact of spurious correlations
 on classification accuracy is to resample the dataset, so that it contains no more spurious correlations.
@@ -455,7 +456,9 @@ If the prevailing spurious correlation is between context and target, then I sug
 Note that I have not mentioned any specific parameters to choose for the algorithms used in the workflow. Specific parameter choices depend on how restrictive
 one wants to be when detecting spurious correlations. However it is important to note that most datasets of a certain size contain a least one spurious correlation.
 Therefore the goal should not be to eliminate every single spurious correlation one has found by only the ones that lead to a significant loss in
-classification accuracy.
+classification accuracy. In addition, the suggested methods to mitigate the impact of a given spurious correlation are only simplified suggestions.
+As mentioned before, mitigating the impact of spurious correlations has been studied to a greater extent than detecting them. To find out more about methods
+to mitigate the impact of spurious correlations I refer to the sources mentioned in \hyperref[sec:mitigatingscs]{Section 4}.
 
 
 \begin{figure}
@@ -467,7 +470,15 @@ classification accuracy.
 
 
 \section{Conclusion}
-In conclusion
+Overall, detecting spurious correlations in image datasets remains a challenging task mainly because feature extraction is difficult in image datasets and
+because human intuition is needed in some part of the detection process to determine whether a correlation is spurious or not. \\
+The existing approaches to detect spurious correlations have different strengths and weaknesses and should therefore be used under different circumstances: 
+Crowdsourcing is the most effective approach but requires the most time and effort. TCAV and Grad-CAM can be conducted by only one person. 
+Their strengths complement each other which makes it useful to combine both approaches. Nevertheless, all three methods have one significant downside: 
+They require a large amount of human effort. Future research should therefore focus on automating the detection process, for example by automatically testing
+a dataset for predefined concepts with TCAV (a similar approach has been proposed by Ghorbani et al. \cite{ghorbani2019automating}). \\
+In general, the fact that mitigating the impact of spurious correlations on classification accuracy is well studied while detecting spurious correlations is
+largely unexplored 
 
 
 \printbibliography
