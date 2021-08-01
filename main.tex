@@ -356,9 +356,10 @@ the amount of trainable parameters of the model. Although there is no perfect co
 classification accuracy, in general one can expect a better accuracy from a larger model, at least when it comes
 to neural networks \cite{8395231}. However, Sagawa et al. \cite{pmlr-v119-sagawa20a} showed that increasing the
 model size can increase the worst-group error and cause the model to rely on spurious correlations when classifying
-images which were underrepresented in the training set. They trained a ResNet \cite{He_2016_CVPR} on the CelebA dataset \cite{liu2015faceattributes} and used logistic regression on a custom waterbird dataset for their studies where
-they varied the width of ResNet and the number of projections of the logistic regression.
-The results of training with different model sizes can be seen in \hyperref[fig:sagawaImg]{Figure 5}.
+images which were underrepresented in the training set. They trained a ResNet \cite{He_2016_CVPR} on the CelebA dataset \cite{liu2015faceattributes} and
+used logistic regression on a custom waterbird dataset for their studies where they varied the width of ResNet and the number of projections of
+the logistic regression. The results of training with different model sizes can be seen in \hyperref[fig:sagawaImg]{Figure 5}. While the overall train
+and test error as well as the worst-group train error converge to zero, the worst group train error increases when training with a larger model. 
 
 \begin{figure}
     \centering
@@ -477,8 +478,11 @@ Crowdsourcing is the most effective approach but requires the most time and effo
 Their strengths complement each other which makes it useful to combine both approaches. Nevertheless, all three methods have one significant downside: 
 They require a large amount of human effort. Future research should therefore focus on automating the detection process, for example by automatically testing
 a dataset for predefined concepts with TCAV (a similar approach has been proposed by Ghorbani et al. \cite{ghorbani2019automating}). \\
-In general, the fact that mitigating the impact of spurious correlations on classification accuracy is well studied while detecting spurious correlations is
-largely unexplored 
+In general, mitigating the impact of spurious correlations on classification accuracy is well studied while detecting spurious correlations is
+largely unexplored. It therefore seems like most researchers simply assume that their datasets contain a certain spurious correlation and see no need to
+thoroughly examine their dataset to find out which spurious correlations it contains and how severe these are. However, properly checking a dataset for spurious
+correlations is crucial in order to effectively mitigate their impact and further research is needed in this field due to the problems which the existing approaches
+have to deal with.
 
 
 \printbibliography
