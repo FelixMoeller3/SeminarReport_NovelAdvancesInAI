@@ -22,7 +22,6 @@ citestyle=numeric]{biblatex}
 \date{August 10th, 2021}
 
 \begin{document}
-%TODO: Paragraphs, scale of Figure 1, figure for TCAV
 \maketitle
 \tableofcontents
 \newpage
@@ -63,9 +62,9 @@ object. So in our car example, a classifier might only detect a car if a person 
 \subsection{Why study spurious correlations?}
 \label{sec:motivation}
 Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset
-where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlations
+where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlation
 impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its
-color into the classic MNIST dataset \cite{mnist}, meaning they assigned a mean color to every digit in the training set and
+color into the classic MNIST dataset \cite{mnist_web}, meaning they assigned a mean color to every digit in the training set and
 then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and
 ${\sigma^2}_{train}$ is the variance of the normal distribution which was altered between iterations.
 The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there
@@ -109,15 +108,17 @@ text data, plain numbers or images. The problem remains to evaluate if a given c
 Whilst determining the causality of a correlation is often easy for humans because they are able to make use of
 their human intuition, computers would have to inspect an infinite amount of images to classify a correlation as
 (not) spurious. However a machine-learning model only has a limited amount of data to train on and the training
-set it is given could misrepresent the concept it is trained for (i.e. contain spurious correlations). 
+set it is given could misrepresent the concept it is trained for (i.e. contain spurious correlations). \\
 In such a case, the model would most likely rely on the spurious correlation(s) which is present in the training set.
 An additional challenge in the context of image datasets is feature-extraction. Determining the correlation
 between a given feature of a dataset and the target attribute (e.g. the correlation between the presence of a special word
-and target attribute) can be automated when the dataset contains text data. Extracting high-level features such as
+and target attribute) can be automated when the feature is annotated. Extracting high-level features such as
 the location of an object in an image or the image angle it is captured from would require training
 an additional classifier to detect the concept. Such a classifier could however make its predictions by exploiting spurious
-correlations which makes this way of feature-extraction unreliable.
-The last option is to inspect the dataset manually. While this is the most reliable method to detect spurious correlations, the sheer size of modern image datasets (IMDB-WIKI: 523,000 images \cite{Rothe-ICCVW-2015}, MS COC0: 328,000 images \cite{lin2015microsoft}) makes manual detection of spurious correlations infeasible.
+correlations which makes this way of feature-extraction unreliable. \\
+The last option is to inspect the dataset manually. While this is the most reliable method to detect spurious correlations,
+the sheer size of modern image datasets (IMDB-WIKI: 523,000 images \cite{Rothe-ICCVW-2015}, MS COC0: 328,000 images 
+\cite{lin2015microsoft}) makes manual detection of spurious correlations infeasible.
 
 
 \section{Detecting spurious correlations}
@@ -128,7 +129,7 @@ in image datasets. These can be grouped into two categories: The first one is \t
 which relies on inspecting a dataset manually to detect spurious correlations. Although I have mentioned that
 manually inspecting image datasets is not feasible in \hyperref[sec:challenges]{Section 2.4},
 there are algorithms which rely on humans to detect spurious correlations. One member of this category is
-Crowdsourcing \cite{10.1145/3366423.3380063}, which makes use of volunteers to speed up the detection process and increase its reliability.
+Crowdsourcing \cite{10.1145/3366423.3380063}, which makes use of volunteers to speed up the detection process and increase its reliability. \\
 The second category is \textbf{Detection via model explanations}. Methods belonging to this category inspect a model trained on
 the given dataset to check if the model exploits spurious correlations to make its predictions.
 This can either be done by highlighting the parts of an image which contributed to the classification or by testing if the
@@ -183,7 +184,10 @@ Another problem with Crowdsourcing is that the output often contains incorrect d
 In the second study conducted by Hu et al. in which the volunteers inspected a car dataset two of the top 10 outputs
 were \enquote{No cars have rust} and \enquote{Each car is fueled by gasoline}. \\
 In conclusion, Crowdsourcing is an effective approach to detect spurious correlations in image annotations
-but the high amount of time and effort it requires make it only applicable to frequently used datasets.
+but the high amount of time and effort it requires make it only applicable to frequently used datasets. 
+Automating all three steps would make this approach a lot more efficient. While steps 1 and 2 cannot be automated because the
+questions generated and answered have no pattern to them, step 3 could be partially automated by using answers to previous
+statements if the statements are similar.
 
 
 \subsection{Grad-CAM}
@@ -200,11 +204,11 @@ $O_{Grad-CAM, i, c} = ReLU(\sum\limits_{k=1}^N {w_k}^c \cdot A^k)$. ReLU is appl
 negatively contributed to the classification. Note that the output of Grad-CAM is of the same dimension as each
 feature map of the final convolutional layer which is usually much smaller than the dimension of the input image. \\
 One advantage of Grad-CAM over other existing explanation algorithms is that its output is class-discriminative,
-i.e. that Grad-CAM only highlights those parts of the image that positively contributed to the specified class of interest.
+i.e. it only highlights those parts of the image that positively contributed to the specified class of interest.
 However since the output of Grad-CAM is of a smaller dimension than the input image its resolution is often not good enough
 to deliver a precise explanation. To combat this, Selvaraju et al. proposed a second approach named Guided Grad-CAM,
 which pointwise multiplies the output of a second explanation algorithm named Guided Backpropagation \cite{springenberg2015striving}
-where the output of Grad-CAM is first upscaled to the dimension of the input image. 
+with the output of Grad-CAM which is first upscaled to the dimension of the input image. 
 Guided Grad-CAM combines the benefits of Grad-CAM whose output is low resolution but class-discriminative and
 Guided Backpropagation which delivers an explanation in high resolution without being class-discriminative.
 This enables the visualization of fine-grained concepts which the CNN responds to like
@@ -277,11 +281,11 @@ more efficient \cite{tong2020investigating}.
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.02]{grad_cam_overview.png}
+    \includegraphics[scale=0.45]{tcav.png}
     \caption{Overview of TCAV, proposed by Kim et al. \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined
     concept is important for the classification of a neural network. The approach consists of three steps: first,
     the concept of interest is defined and a layer from the neural network is chosen. Next, the concept activation
-    vector is computed. In the final step, a TCAV-Score is asserted to the concept}
+    vector is computed (marked in red). In the final step, a TCAV-Score is asserted to the concept}
     \label{fig:tcav}
 \end{figure}
 
@@ -313,9 +317,8 @@ it only allows testing for one concept at a time. Grad-CAM and Crowdsourcing are
 allow the detection of multiple spurious correlations simultaneously. \\
 The final criterion called \textbf{human understandability} is fulfilled by methods which do not require human examination
 or whose results can be interpreted by a human with expert knowledge. While all methods fulfill this criterion it should
-still be mentioned that the output of Grad-CAM and TCAV can be distorted if they are conducted by laypeople.
-By contrast Crowdsourcing relies on laypeople.
-%TODO: NAchbessern und conclusion geben (wann welcher approach?)
+still be mentioned that the output of Grad-CAM and TCAV can be distorted if they are conducted by
+laypeople. By contrast Crowdsourcing relies on laypeople to detect spurious correlations.
 
 \begin{table}[h!]
     \centering
@@ -354,12 +357,22 @@ good overview over the existing methods to mitigate the impact of spurious corre
 A naive approach to mitigating the impact of spurious correlations could be to increase the model size, i.e. increasing
 the amount of trainable parameters of the model. Although there is no perfect correlation between model size and
 classification accuracy, in general one can expect a better accuracy from a larger model, at least when it comes
-to neural networks \cite{8395231}. However, Sagawa et al. \cite{pmlr-v119-sagawa20a} showed that increasing the
-model size can increase the worst-group error and cause the model to rely on spurious correlations when classifying
-images which were underrepresented in the training set. They trained a ResNet \cite{He_2016_CVPR} on the CelebA dataset \cite{liu2015faceattributes} and
-used logistic regression on a custom waterbird dataset for their studies where they varied the width of ResNet and the number of projections of
-the logistic regression. The results of training with different model sizes can be seen in \hyperref[fig:sagawaImg]{Figure 5}. While the overall train
-and test error as well as the worst-group train error converge to zero, the worst group train error increases when training with a larger model. 
+to neural networks \cite{8395231}. \\
+However, Sagawa et al. \cite{pmlr-v119-sagawa20a} showed that increasing the model size can increase the worst-group error 
+and cause the model to rely on spurious correlations when classifying images which were underrepresented in the training set. 
+They trained a ResNet \cite{He_2016_CVPR} on the CelebA dataset \cite{liu2015faceattributes} and used logistic regression
+on a custom waterbird dataset for their studies where they varied the width of ResNet and the number of projections of the
+logistic regression. The results of training with different model sizes can be seen in \hyperref[fig:sagawaImg]{Figure 5}. 
+While the overall train and test error as well as the worst-group train error converge to zero, the worst-group train error
+increases when training with a larger model. In other words, larger models generalize well on common classes and exploit
+spurious correlations when predicting rare classes. Sagawa et al. argue that the reason behind this is that the spuriously
+correlated feature(s) of atypical classes is more informative than core features in the training set and the model therefore
+relies on the spurious feature(s) to achieve zero training error. \\
+The main takeaway of Sagawa et al.'s paper is that one should be careful when making changes to an existing model trained
+on a dataset containing spurious correlations. However it should be mentioned that Sagawa et al. only observed larger models 
+exploiting spurious correlations when it was the rare groups which contained them. The more they upsampled previously rare groups, 
+the less larger models exploited spurious correlations when classifying them. So balancing the dataset can be considered a
+countermeasure to letting models exploit spurious correlations on rare groups.
 
 \begin{figure}
     \centering
