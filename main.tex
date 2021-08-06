@@ -27,35 +27,37 @@ citestyle=numeric]{biblatex}
 \tableofcontents
 \newpage
 \section{Abstract}
-%TODO: Abstract besser formulieren (interpretability raus, kein "ich")
 Neural networks and especially Convolutional Neural Networks (CNN) have revolutionized the field of computer vision in the recent years.
-While neural networks become more refined every year they also become more complex and difficult to interpret.
-However, interpretability is important because it allows researchers to investigate whether their models make
+While neural networks become more refined every year they also become more complex and their predictions are become more incomprehensive.
+However, understanding neural networks is important because it allows researchers to investigate whether their models make
 their predictions by "learning from the right thing" or not. Surprisingly, recent research has shown that many models' predictions
-rely on so-called spurious correlations. In this report, I will present an overview over the existing methods
-to detect spurious correlations and compare them with regard to their usability.
-Next, I will show what should and what should not be done to mitigate the impact of spurious correlations on classification
-accuracy and finally I will propose a workflow to handle datasets that could contain spurious correlations. 
+rely on so-called spurious correlations. Making predictions by exploiting spurious correlation is not always problematic but it can be when
+these spurious correlations are no longer present after deployment.
+This report presents an overview over the existing methods to detect spurious correlations and compares them with regard to their usability.
+Next, it will show what should and what should not be done to mitigate the impact of spurious correlations on classification
+accuracy and finally the report presents a workflow to handle datasets that could contain spurious correlations. 
 
 
 \section{Introduction}
 \subsection{What is a spurious correlation (s.c.)?}
-%TODO: 2.1 ersten Satz weglassen, co-movement raus, welche s.c.s nicht
-Before we have a look at the impact of spurious correlations on image datasets we first need to focus on what spurious correlations are.
 According to \cite{sc_def} a spurious correlation is a \enquote{connection between to variables that appears causal but is not}.
-This means that there \textit{appears} to be a logical explanation for the co-movement of both variables when the correlation is in fact completely random.
+This means that there \textit{appears} to be a logical explanation for the correlation between both variables when in fact one variable 
+can be manipulated without an effect on the other.
 \hyperref[sec:challenges]{Section 2.4} mentions why this is especially problematic in a machine learning context.
-In this report, I will only have a look at spurious correlations that exist between a given feature of the dataset (e.g. the background of the image)
+This report will only have a look at spurious correlations that exist between a given feature of the dataset (e.g. the background of the image)
 and the target value (e.g. the age of a person) as these are the only spurious correlations that might cause the classifier to make wrong generalizations.
+In other words, spurious correlations between any set of two or more features of the dataset which does not contain the classification
+target will not be considered.
 
 
 \subsection{Common types of s.c.s in image datasets}
-Modern research has worked out two commonly occurring types of spurious correlations. The first one is between \textbf{image angle} and \textbf{target} \cite{5995347}.
+Literature on image classification mentions two frequent types of spurious correlations. 
+The first one is between \textbf{image angle} and \textbf{target} \cite{5995347}.
 In datasets that contain such a spurious correlation, the target is often shown from a similar angle (e.g. in an image dataset made up of cars all cars
 could be shown from the front) or in the same part of the image (e.g. most of the time the object of interest is in the centre of the image).
 Spurious correlations between image angle and target can be problematic because an image recognition model trained on a dataset
 which contains such a spurious correlation might struggle to classify the target object when it is shown from an angle that was not present in the training dataset. \\
-The next commonly occurring spurious correlation between \textbf{context} and \textbf{target} \cite{Singh_2020_CVPR}.
+Another commonly occurring spurious correlation is between \textbf{context} and \textbf{target} \cite{Singh_2020_CVPR}.
 Spurious correlations between context and target occur in datasets where a non-target object co-occurs with the target object.
 One example would be cars which are commonly depicted with people. A classifier trained on a dataset with a spurious
 correlation between context and target might infer that the target value has to occur with its spuriously correlated non-target
@@ -65,10 +67,10 @@ object. So in our car example, a classifier might only detect a car if a person 
 \subsection{Why study spurious correlations?}
 \label{sec:motivation}
 Datasets containing spurious correlations can significantly diminish the accuracy of a model compared to training on a dataset
-where no spurious correlations are present. Kim et al. have shown how much varying degrees of the same spurious correlation
-impact the classification accuracy of a model \cite{Kim_2019_CVPR}. They planted a spurious correlation between a digit and its
-color into the classic MNIST dataset \cite{mnist_web}, meaning they assigned a mean color to every digit in the training set and
-then drew from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and
+where no spurious correlations are present. Recent work has shown how much varying degrees of the same spurious correlation
+impact the classification accuracy of a model \cite{Kim_2019_CVPR}. The idea was to plant a spurious correlation between a digit and its
+color into the classic MNIST dataset \cite{mnist_web}, i.e. to assign a mean color to every digit in the training set and
+then draw from $N(mu_{digit},{\sigma^2}_{train})$ where $mu_{digit}$ is the mean color of the given digit and
 ${\sigma^2}_{train}$ is the variance of the normal distribution which was altered between iterations.
 The digits in the test dataset were assigned a random color (i.e. the mean color was not digit-specific), indicating that there
 is no spurious correlation in the test dataset. The degree of the spurious correlation between digit and color in the training
@@ -125,13 +127,9 @@ the sheer size of modern image datasets (IMDB-WIKI: 523,000 images \cite{Rothe-I
 
 
 \section{Detecting spurious correlations}
-%TODO: die ersten beiden Sätze raus
-Despite the significant negative impact of spurious correlations on classification accuracy,
-detecting spurious correlations remains largely unexplored to this day.
-Nevertheless researchers have proposed a handful of algorithms to detect spurious correlations
-in image datasets. These can be grouped into two categories: The first one is \textbf{human-based detection}
-which relies on inspecting a dataset manually to detect spurious correlations. Although I have mentioned that
-manually inspecting image datasets is not feasible in \hyperref[sec:challenges]{Section 2.4},
+Existing methods to detect spurious correlations in image datasets fall into two main groups: The first one is \textbf{human-based detection}
+which relies on inspecting a dataset manually to detect spurious correlations. Although \hyperref[sec:challenges]{Section 2.4}
+mentions that manually inspecting image datasets is not feasible,
 there are algorithms which rely on humans to detect spurious correlations. One member of this category is
 Crowdsourcing \cite{10.1145/3366423.3380063}, which makes use of volunteers to speed up the detection process and increase its reliability. \\
 The second category is \textbf{Detection via model explanations}. Methods belonging to this category inspect a model trained on
@@ -141,10 +139,10 @@ model responds to a user-defined concept. Gradient-weighted Class Activation Map
 makes use of the former, while Testing with concept activation vectors (TCAV) \cite{pmlr-v80-kim18d} relies on the latter.
 
 \subsection{Crowdsourcing}
-The main principle of Hu et al.'s Crowdsourcing approach \cite{10.1145/3366423.3380063} is to distribute the given dataset
-among all multiple volunteers to reduce the individual effort of each person. A brief summary of their approach
+The main principle of Crowdsourcing \cite{10.1145/3366423.3380063} is to distribute the given dataset
+among all multiple volunteers to reduce the individual effort of each person. A brief summary of the approach
 can be seen in \hyperref[fig:crowdsourcing]{Figure 2}. \\
-Their proposed algorithm consists of three steps: \textbf{Step 1} is called \textbf{Question generation}.
+The proposed algorithm consists of three steps: \textbf{Step 1} is called \textbf{Question generation}.
 In this step each volunteer is provided with a random sample of the dataset. Next, each volunteer creates questions regarding
 anomalies he has found in his sample of the dataset where the answer to such a question is the given anomaly
 (the answer is also given by the volunteer). Between step 2 and step 1 all similar questions are merged via spaCy,
@@ -171,21 +169,21 @@ by the conductors of the algorithm. \\
 \begin{figure}
     \centering
     \includegraphics[scale=0.315]{crowdsourcing.png}
-    \caption{Crowdsourcing approach to detect spurious correlations in image datasets, proposed by Hu et al. \cite{10.1145/3366423.3380063}}
+    \caption{Crowdsourcing approach to detect spurious correlations in image datasets \cite{10.1145/3366423.3380063}.}
     \label{fig:crowdsourcing}
 \end{figure}
 
 Overall, Crowdsourcing can be seen as an effective algorithm because it largely relies on human intuition to detect
 spurious correlations. An additional benefit of this approach is that it is conducted by working directly
 on the dataset which makes it superior to model explanations. \\
-In both studies conducted by Hu et al. more than 10 volunteers per 100 images took part in the study.
+In both studies conducted in \cite{10.1145/3366423.3380063} more than 10 volunteers per 100 images took part in the study.
 Even if one were to inspect only a small fraction of the dataset, one would need in excess of 100 volunteers!
 The fact that Crowdsourcing relies on such a large amount of volunteers is ambivalent. On the one hand, relying on multiple
 volunteers decreases the bias towards the perceptions of a small group and leads to finding more spurious correlations.
 However to most people needing to inspect a dataset such a large group of volunteers is unattainable and relying on humans
 to detect spurious correlations is time-consuming.
 Another problem with Crowdsourcing is that the output often contains incorrect detections.
-In the second study conducted by Hu et al. in which the volunteers inspected a car dataset two of the top 10 outputs
+In the second study conducted in which the volunteers inspected a car dataset two of the top 10 outputs
 were \enquote{No cars have rust} and \enquote{Each car is fueled by gasoline}. \\
 In conclusion, Crowdsourcing is an effective approach to detect spurious correlations in image annotations
 but the high amount of time and effort it requires make it only applicable to frequently used datasets. 
@@ -195,9 +193,8 @@ statements if the statements are similar.
 
 
 \subsection{Grad-CAM}
-%TODO: Zitat Grad-CAM
 Grad-CAM highlights the parts of an image that contributed to a given classification by inspecting its
-final convolutional layer. An overview of Grad-CAM can be seen in \hyperref[fig:gradcam]{Figure 3}. \\
+final convolutional layer \cite{Selvaraju_2017_ICCV}. An overview of Grad-CAM can be seen in \hyperref[fig:gradcam]{Figure 3}. \\
 To generate an explanation for a given image with Grad-CAM, the image is first given to a CNN as its input
 and a class $c$ whose contribution should be explained needs to be specified. Grad-CAM then assigns a weight
 ${w_k}^c$ to each of the $n$ feature maps of the final convolutional layer of the given CNN with
@@ -216,7 +213,7 @@ feature map of the final convolutional layer which is usually much smaller than 
 One advantage of Grad-CAM over other existing explanation algorithms is that its output is class-discriminative,
 i.e. it only highlights those parts of the image that positively contributed to the specified class of interest.
 However since the output of Grad-CAM is of a smaller dimension than the input image its resolution is often not good enough
-to deliver a precise explanation. To combat this, Selvaraju et al. proposed a second approach named Guided Grad-CAM,
+to deliver a precise explanation. To combat this, \cite{Selvaraju_2017_ICCV} proposed a second approach named Guided Grad-CAM,
 which pointwise multiplies the output of a second explanation algorithm named Guided Backpropagation \cite{springenberg2015striving}
 with the output of Grad-CAM which is first upscaled to the dimension of the input image. 
 Guided Grad-CAM combines the benefits of Grad-CAM whose output is low resolution but class-discriminative and
@@ -241,15 +238,15 @@ relies on a certain concept when making its predictions. Since this needs to be 
 most time in the detection process and slows it down considerably. Estimating the degree of a spurious correlation
 with Grad-CAM is also a challenge because Grad-CAM does not compute a value for a given spurious correlation.
 %TODO: DRINGEND Überarbeiten!!!
-Research conducted by Tong \& Kagal \cite{tong2020investigating} has shown that most simple metrics fail
-to estimate the degree of a spurious correlation when using Grad-CAM because its output is noisy, i.e. it always
-highlights features which do not causally correlate with the target even if the dataset does not contain spurious
-correlations, only to a lesser extent.
+%Research conducted by Tong \& Kagal \cite{tong2020investigating} has shown that most simple metrics fail
+%to estimate the degree of a spurious correlation when using Grad-CAM because its output is noisy, i.e. it always
+%highlights features which do not causally correlate with the target even if the dataset does not contain spurious
+%correlations, only to a lesser extent.
 
 \begin{figure}
     \centering
     \includegraphics[scale=0.057]{grad_cam_overview.png}
-    \caption{Overview of Grad-CAM, proposed by Selvaraju et al. \cite{Selvaraju_2017_ICCV}. Grad-CAM explains
+    \caption{Overview of Grad-CAM \cite{Selvaraju_2017_ICCV}. Grad-CAM explains
     a CNN-model by inspecting its final convolutional layer. The output of Grad-CAM can be pointwise multiplied
     with the output of an algorithm called Guided Backpropagation \cite{springenberg2015striving} to receive a
     more detailed explanation}
@@ -259,7 +256,7 @@ correlations, only to a lesser extent.
 
 \subsection{TCAV}
 %TODO: Absätze, Ghorbani-Approach, feature extraction 
-TCAV \cite{pmlr-v80-kim18d} is an algorithm which detects spurious correlations by testing if a neural network trained
+TCAV \cite{pmlr-v80-kim18d} is an algorithm that detects spurious correlations by testing if a neural network trained
 on the dataset of interest relies on a user-defined concept when making its predictions. An overview of the algorithm
 can be seen in \hyperref[fig:tcav]{Figure 4} \\
 \textbf{Step 1} requires the user to \textbf{define a concept} of interest $c$ (e.g. the stripes of a zebra
@@ -287,7 +284,8 @@ relies on when making its predictions. \\
 A huge benefit of TCAV is its flexibility towards model architecture: TCAV can be applied to any neural network and
 it is even possible to choose the layer which one wants to investigate. In addition, the algorithm can be automated so
 that all the user has to do is define the concept. This is important because it allows people without any machine-learning
-knowledge to investigate the model. However like Grad-CAM, TCAV is an algorithm that explains a given model an can
+knowledge to investigate the model. \\
+However like Grad-CAM, TCAV is an algorithm that explains a given model an can
 therefore only detect spurious correlations which the given model exploits. An even bigger problem is that TCAV can only
 check if the model exploits a spurious correlation if the user has the assumption that this is the case.
 This means that spurious correlations which do not often occur and are therefore not assumed to be present
@@ -301,7 +299,7 @@ more efficient \cite{tong2020investigating}.
 \begin{figure}
     \centering
     \includegraphics[scale=0.45]{tcav.png}
-    \caption{Overview of TCAV, proposed by Kim et al. \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined
+    \caption{Overview of TCAV \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined
     concept is important for the classification of a neural network. The approach consists of three steps: first,
     the concept of interest is defined and a layer from the neural network is chosen. Next, the concept activation
     vector is computed (marked in red). In the final step, a TCAV-Score is asserted to the concept}
@@ -360,8 +358,8 @@ laypeople. By contrast Crowdsourcing relies on laypeople to detect spurious corr
 
 \section{Mitigating the impact of spurious correlations}
 \label{sec:mitigatingscs}
-%TODO: BEitrag der einzelnen Paper nennen, Wertung raus
-Unfortunately, detecting spurious correlations is only the first step of dealing with them. If one has detected
+%TODO: BEitrag der einzelnen Paper nennen
+Detecting spurious correlations is only the first step of dealing with them. If one has detected
 spurious correlations in a given image dataset, the best method to mitigate the impact of spurious correlations
 on classification accuracy is to resample the dataset, so that it contains no more spurious correlations.
 However, obtaining new image data is not always possible, e.g. for legal/privacy reasons (medical AI) or for
@@ -378,18 +376,18 @@ A naive approach to mitigating the impact of spurious correlations could be to i
 the amount of trainable parameters of the model. Although there is no perfect correlation between model size and
 classification accuracy, in general one can expect a better accuracy from a larger model, at least when it comes
 to neural networks \cite{8395231}. \\
-However, Sagawa et al. \cite{pmlr-v119-sagawa20a} showed that increasing the model size can increase the worst-group error 
+However, \cite{pmlr-v119-sagawa20a} showed that increasing the model size can increase the worst-group error 
 and cause the model to rely on spurious correlations when classifying images which were underrepresented in the training set. 
 They trained a ResNet \cite{He_2016_CVPR} on the CelebA dataset \cite{liu2015faceattributes} and used logistic regression
 on a custom waterbird dataset for their studies where they varied the width of ResNet and the number of projections of the
 logistic regression. The results of training with different model sizes can be seen in \hyperref[fig:sagawaImg]{Figure 5}. 
 While the overall train and test error as well as the worst-group train error converge to zero, the worst-group train error
 increases when training with a larger model. In other words, larger models generalize well on common classes and exploit
-spurious correlations when predicting rare classes. Sagawa et al. argue that the reason behind this is that the spuriously
+spurious correlations when predicting rare classes. \cite{pmlr-v119-sagawa20a} argue that the reason behind this is that the spuriously
 correlated feature(s) of atypical classes is more informative than core features in the training set and the model therefore
 relies on the spurious feature(s) to achieve zero training error. \\
-The main takeaway of Sagawa et al.'s paper is that one should be careful when making changes to an existing model trained
-on a dataset containing spurious correlations. However it should be mentioned that Sagawa et al. only observed larger models 
+The main takeaway of this section is that one should be careful when making changes to an existing model trained
+on a dataset containing spurious correlations. However it should be mentioned that research in \cite{pmlr-v119-sagawa20a} only observed larger models 
 exploiting spurious correlations when it was the rare groups which contained them. The more they upsampled previously rare groups, 
 the less larger models exploited spurious correlations when classifying them. So balancing the dataset can be considered a
 countermeasure to letting models exploit spurious correlations on rare groups.
@@ -398,8 +396,8 @@ countermeasure to letting models exploit spurious correlations on rare groups.
     \centering
     \includegraphics[scale=0.2]{sagawa_dataset.png}
     \includegraphics[scale=0.28]{sagawa_diagram_standard.png}
-    \caption{Datasets used and results of a study on the effect of spurious correlations with varying model size conducted
-    by Sagawa et al. \cite{pmlr-v119-sagawa20a}. It is clear to see that both ResNet and logistic regression have
+    \caption{Datasets used and results of a study on the effect of spurious correlations with varying model size \cite{pmlr-v119-sagawa20a}.
+    It is clear to see that both ResNet and logistic regression have
     difficulty to classify atypical groups as their size increases despite having low training error on these groups.}
     \label{fig:sagawaImg}
 \end{figure}
@@ -411,7 +409,7 @@ therefore important to mitigate their impact on classification performance. The 
 is that they are not always harmful. The context that an object occurs with can also contain information which is helpful
 for classification. So the challenge in such cases is to improve classification accuracy when an object occurs without
 its context without compromising accuracy when an object co-occurs with its context. This was also the goal of a
-new training procedure proposed by Singh et al. \cite{Singh_2020_CVPR} which works as follows
+new training procedure proposed by \cite{Singh_2020_CVPR} which works as follows
 (overview in \hyperref[fig:contextSupprImg]{Figure 6}): \\
 First, one needs to train a classifier on the given dataset which contains spurious correlations between labeled classes.
 Note that the dataset needs to be multi-labeled. Next, for each class $c$ in the training set, a second class $d$ is
@@ -439,13 +437,13 @@ However, if class $c$ occurs in absence of class $d$ then $y$ is computed as $y=
 $\bar{x}_d$ is the average of $x_d$ over the last 10 mini-batches. In addition backpropagation on the weights of $W_d$
 is disabled, meaning that only the weights belonging to $W_c$ are adjusted. Intuitively the neural network is forced to
 learn from the information provided by class $c$ and the information obtained from the feature subspace of class $d$ is suppressed.
-Note that $x_d$ could be set to any constant value. Setting $x_d = \bar{x}_d$ was a decision by Singh et al. which they state improves
+Note that $x_d$ could be set to any constant value. Setting $x_d = \bar{x}_d$ was a decision which \cite{Singh_2020_CVPR} state improves
 stability during training. Also note that the neural network is only different from any standard neural network at training time. \\
-The effectiveness of their algorithm was also shown in studies conducted by Singh et al. on the MS COCO dataset \cite{lin2015microsoft}:
+The effectiveness of their algorithm was also shown in studies conducted by \cite{Singh_2020_CVPR} on the MS COCO dataset \cite{lin2015microsoft}:
 they improved the accuracy for \enquote{ski} and \enquote{skateboard}, the two classes which were affected most by their context,
 by 24.2 and 19.5 percentage points respectively. By inspecting the classifications made by a neural network trained with their
 approach they verified that the network focuses on the object when is is present without its context while still letting the context contribute to the classification when it is present. \\
-Overall, the approach proposed by Singh et al. is a promising one. Nevertheless, it fails to account for spurious correlations between
+Overall, the approach proposed by \cite{Singh_2020_CVPR} is a promising one. Nevertheless, it fails to account for spurious correlations between
 more than two classes. More problematic is that it only seems to effectively mitigate the impact of the most severe spurious correlations.
 When investigating the 20 classes suffering from the most severe spurious correlations instead of the top 2, the performance increase
 over a standard classifier shrinks to a mere 4.3 percentage points and the classification accuracy remains low at 28.8 \% when these
@@ -454,8 +452,8 @@ classes occur exclusively.
 \begin{figure}
     \centering
     \includegraphics[scale=0.44]{context_suppression.png}
-    \caption{Training procedure to reduce the effect of a spurious correlation between context and target, proposed
-    by Singh et al. \cite{Singh_2020_CVPR}. If a label co-occurs with its spuriously correlated label, then training is
+    \caption{Training procedure to reduce the effect of a spurious correlation between context and target \cite{Singh_2020_CVPR}.
+    If a label co-occurs with its spuriously correlated label, then training is
     no different from training any standard neural network. However, if a label occurs without its spuriously correlated
     label, then only the weights assigned to the dedicated label (ski in this example) are adjusted, forcing to the neural
     network to focus on the object in the image (ski).}
@@ -464,7 +462,7 @@ classes occur exclusively.
 
 
 \section{How to deal with datasets that might contain spurious correlations}
-To summarize the findings of the previous sections, I have come up with a workflow on how to handle datasets that could contain spurious correlations.
+The following workflow on how to handle datasets that could contain spurious correlations summarizes the findings of the previous sections.
 An overview of the proposed workflow can be seen in \hyperref[fig:workflow]{Figure 7}. \\
 The first step is to create or choose a dataset. Which of the two methods is the best depends largely on the target. If the goal is to classify or
 detect common objects such as cars then it would be better to work with existing datasets such as CompCars in this case \cite{Yang_2015_CVPR}.
@@ -472,7 +470,7 @@ However, if the target is a rare or extraordinary concept such as a specific ill
 not be any existing ones. In other cases, a hybrid approach could make sense. \\
 After one has decided on which dataset to choose the next step is to scan the dataset for spurious correlations. In case time is not an issue
 and volunteers are available the detection method of choice should be Crowdsourcing because it produces the best output, i.e. if finds the most spurious
-correlations and estimates their degree best. If conducting Crowdsourcing is not feasible then I suggest a hybrid approach between Grad-CAM and TCAV which
+correlations and estimates their degree best. If conducting Crowdsourcing is not feasible then it would make sense to use a hybrid approach between Grad-CAM and TCAV which
 combines the strengths of both algorithms: One should first train a neural network on the dataset chosen in step 1 and inspect its predictions with Grad-CAM
 to come up with assumptions for spurious correlations. Next, one should check if these potential spurious correlations hold up with TCAV. \\
 If the previous step did not lead to the detection of any spurious correlation, then the chosen dataset can be used for the given computer vision task. 
@@ -483,28 +481,27 @@ to make it robust to the spurious correlations found in the dataset. Since the d
 as well as a spurious correlation between context and target, one should focus on the prevailing spurious correlation which is the one with either
 the highest weight (Crowdsourcing) or the highest TCAV-Score. \\
 If the prevailing spurious correlation is between image angle and target, then using data augmentation (cropping, flipping and/or erasing parts of the image)
-can be used to mitigate the impact of such a spurious correlation on classification accuracy. Research conducted by Agarwal et al. \cite{Agarwal_2020_CVPR}
+can be used to mitigate the impact of such a spurious correlation on classification accuracy \cite{Agarwal_2020_CVPR}.
 supports this thesis. 
-If the prevailing spurious correlation is between context and target, then I suggest using the context suppression algorithm presented in
+If the prevailing spurious correlation is between context and target, then one should use the context suppression algorithm presented in
 \hyperref[sec:contextSuppr]{Section 4.2}. \\
-Note that I have not mentioned any specific parameters to choose for the algorithms used in the workflow. Specific parameter choices depend on how restrictive
+Note that the workflow does not mention any specific parameters to choose for the algorithms used in the workflow. Specific parameter choices depend on how restrictive
 one wants to be when detecting spurious correlations. However it is important to note that most datasets of a certain size contain a least one spurious correlation.
 Therefore the goal should not be to eliminate every single spurious correlation one has found by only the ones that lead to a significant loss in
 classification accuracy. In addition, the suggested methods to mitigate the impact of a given spurious correlation are only simplified suggestions.
-As mentioned before, mitigating the impact of spurious correlations has been studied to a greater extent than detecting them. To find out more about methods
-to mitigate the impact of spurious correlations I refer to the sources mentioned in \hyperref[sec:mitigatingscs]{Section 4}.
+As mentioned before, mitigating the impact of spurious correlations has been studied to a greater extent than detecting them. 
+More methods to mitigate the impact of spurious correlations can be found in the sources mentioned in \hyperref[sec:mitigatingscs]{Section 4}.
 
-%TODO: Bild ohne rote Unterstreichungen
 \begin{figure}
     \centering
-    \includegraphics[scale=0.38]{sc_workflow.png}
+    \includegraphics[scale=0.30]{sc_workflow.png}
     \caption{Workflow for dealing with image datasets that might contain spurious correlations}
     \label{fig:workflow}
 \end{figure}
 
 
 \section{Conclusion}
-%TODO: Unexplored raus, Ende etwas netter formulieren
+%TODO: Ghorbani approach bei TCAV und feature extraction bei TCAV
 Overall, detecting spurious correlations in image datasets remains a challenging task mainly because feature extraction is difficult in image datasets and
 because human intuition is needed in some part of the detection process to determine whether a correlation is spurious or not. \\
 The existing approaches to detect spurious correlations have different strengths and weaknesses and should therefore be used under different circumstances: 
@@ -512,11 +509,11 @@ Crowdsourcing is the most effective approach but requires the most time and effo
 Their strengths complement each other which makes it useful to combine both approaches. Nevertheless, all three methods have one significant downside: 
 They require a large amount of human effort. Future research should therefore focus on automating the detection process, for example by automatically testing
 a dataset for predefined concepts with TCAV (a similar approach has been proposed by Ghorbani et al. \cite{ghorbani2019automating}). \\
-In general, mitigating the impact of spurious correlations on classification accuracy is well studied while detecting spurious correlations is
-largely unexplored. It therefore seems like most researchers simply assume that their datasets contain a certain spurious correlation and see no need to
-thoroughly examine their dataset to find out which spurious correlations it contains and how severe these are. However, properly checking a dataset for spurious
-correlations is crucial in order to effectively mitigate their impact and further research is needed in this field due to the problems which the existing approaches
-have to deal with.
+In general, mitigating the impact of spurious correlations on classification accuracy is well studied while automating the process of detecting spurious
+correlations is largely unexplored. It therefore seems like most researchers assume that their datasets contain a certain spurious correlation and 
+underestimate the importance to thoroughly examine their dataset to find out which spurious correlations it contains and how severe these are. 
+However, properly checking a dataset for spurious correlations is crucial in order to effectively mitigate their impact and further research
+is needed in this field due to the problems which the existing approaches have to deal with.
 
 
 \printbibliography
