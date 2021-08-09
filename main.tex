@@ -21,7 +21,6 @@ citestyle=numeric]{biblatex}
 \author{Felix Möller}
 \date{August 10th, 2021}
 
-%TODO-Meta: Autorennamen raus,
 \begin{document}
 \maketitle
 \tableofcontents
@@ -237,11 +236,7 @@ Another problem of Grad-CAM is that one needs to inspect multiple explanations t
 relies on a certain concept when making its predictions. Since this needs to be done manually, it takes up
 most time in the detection process and slows it down considerably. Estimating the degree of a spurious correlation
 with Grad-CAM is also a challenge because Grad-CAM does not compute a value for a given spurious correlation.
-%TODO: DRINGEND Überarbeiten!!!
-%Research conducted by Tong \& Kagal \cite{tong2020investigating} has shown that most simple metrics fail
-%to estimate the degree of a spurious correlation when using Grad-CAM because its output is noisy, i.e. it always
-%highlights features which do not causally correlate with the target even if the dataset does not contain spurious
-%correlations, only to a lesser extent.
+
 
 \begin{figure}
     \centering
@@ -255,7 +250,6 @@ with Grad-CAM is also a challenge because Grad-CAM does not compute a value for 
 
 
 \subsection{TCAV}
-%TODO: Absätze, Ghorbani-Approach, feature extraction 
 TCAV \cite{pmlr-v80-kim18d} is an algorithm that detects spurious correlations by testing if a neural network trained
 on the dataset of interest relies on a user-defined concept when making its predictions. An overview of the algorithm
 can be seen in \hyperref[fig:tcav]{Figure 4} \\
@@ -296,8 +290,22 @@ The biggest drawback of TCAV is that it can only check if the model exploits a s
 that this is the case. This means that spurious correlations which do not often occur and are therefore not assumed 
 to be present in the dataset cannot be detected when detecting spurious correlations solely with TCAV. The underlying problem is
 that it is difficult to extract features which could be spuriously correlated with the target, a challenge mentioned in
-\hyperref[sec:challenged]{Section 2.4}. Discovery TCAV (DTCAV) \cite{ghorbani2019automating} attempts to combat this challenge by automating feature extraction from image datasets and subsequently checking their importance with TCAV. More precisely, DTCAV segments a given set of images from the class of interest (so-called \enquote{concept discovery images}) 
-%TODO: Algorithmus fertig beschreiben, Vorteil: Automatisierung von feature extraction, Nschteil: manchmal weirde concepts, meta-concepts (Richtung und Ort) nicht extrahierbar
+\hyperref[sec:challenged]{Section 2.4}. \textbf{Discovery TCAV (DTCAV)} \cite{ghorbani2019automating} attempts to combat this challenge by
+automating feature extraction from image datasets and subsequently checking their importance with TCAV. More precisely, DTCAV segments a
+given set of images from the class of interest (so-called \enquote{concept discovery images}) multiple times with different granularity to
+collect possible concepts. Duplicate segments may occur in this step and if they do, then duplicates are removed. Next, these segments are
+resized to the input size of the neural network and their activations are inspected at a bottleneck layer of the neural network which is being
+investigated. Segments with similar activations are then clustered to form a concept and outliers are removed. The idea behind this is that images
+with similar activations should depict similar concepts. Finally, a TCAV score is assigned to each previously constructed concept. \\
+DTCAV can be considered a breakthrough in the detection of spurious correlations because it automates feature extraction and because it is the first
+approach which detects spurious correlations in images with a reasonable amount of human effort. The only human effort DTCAV requires is to determine
+whether the important concepts given by DTCAV should be important for classification or not. \\
+While DTCAV is a huge improvement over TCAV it still has its issues. The first one is that the concepts discovered by DTCAV can be incoherent to humans.
+This is because DTCAV discovers concepts based on similar activations which does not necessarily mean that the images are semantically similar, although this
+is most often the case. In addition, DTCAV cannot completely solve the issue of feature extraction because it fails to extract more complex features such as the
+location of an object in the image. This is caused by upscaling each segment to the input size of the neural network. Any information about the location of the
+segment in the original image is lost during upscaling.
+
 
 \begin{figure}
     \centering
@@ -313,11 +321,12 @@ that it is difficult to extract features which could be spuriously correlated wi
 \subsection{Comparing existing methods to detect spurious correlations}
 The three methods to detect spurious correlations mentioned in this report all have different strengths and weaknesses.
 However to determine the best method to detect spurious correlations it is beneficial to evaluate the quality of each method
-via the same criteria. Tong \& Kagal \cite{tong2020investigating} have proposed 5 criteria which a reliable method to
+via the same criteria. \cite{tong2020investigating} proposed 5 criteria which a reliable method to
 detect spurious correlations should fulfill. An overview can be seen in \hyperref[tab:comparison]{Table 1}.\\
 The first criterion is \textbf{detecting the spurious correlation}. This means that the method itself should detect
 the spurious correlation without any input other than the dataset. Grad-CAM and Crowdsourcing fulfill this criterion
-but TCAV can only confirm or deny the assumption that a given spurious correlation exists in a dataset. \\
+but TCAV can only confirm or deny the assumption that a given spurious correlation exists in a dataset. Discovery TCAV automatically
+creates concepts and test their relevance and can therefore detect spurious correlations by itself.\\
 Next, a method to detect spurious correlations should \textbf{detect the degree of the spurious correlation}.
 Quantifying different spurious correlations is important to determine how prevalent a spurious correlation is in a dataset.
 The experiment shown in \hyperref[sec:motivation]{Section 2.3} demonstrates how differently varying degrees of the same
@@ -326,15 +335,15 @@ which makes is challenging to estimate the degree of a spurious correlation. The
 Crowdsourcing do not allow for a perfect comparison of different spurious correlations because their computation includes
 human subjectivity but they at least allow for a rough grouping. \\
 The third criterion is \textbf{efficiency} which a detection method fulfills if it requires little time and human effort.
-This is the only criterion which no method fulfills because every method requires some form of human effort. Grad-CAM requires
-the user to inspect classifications, with TCAV the user needs to collect images for a concept and Crowdsourcing involves
-human effort in every step. Although all methods require human effort Crowdsourcing stands out among TCAV and Grad-CAM
+Only DTCAV fulfills this criterion because the user only has to check whether or not the discovered concepts are spurious. 
+Grad-CAM requires the user to inspect classifications, with TCAV the user needs to collect images for a concept and Crowdsourcing involves
+human effort in every step. Although all other methods require human effort Crowdsourcing stands out among TCAV and Grad-CAM
 not only because of the amount of human effort it requires but especially for the fact that a high number of
 volunteers is needed. \\
 The next criterion is called \textbf{multiple attribute friendliness}. Multiple attribute friendliness means that the
 method can detect multiple spurious correlations at the same time. TCAV is not multiple-attribute-friendly because
-it only allows testing for one concept at a time. Grad-CAM and Crowdsourcing are not concept-driven and therefore
-allow the detection of multiple spurious correlations simultaneously. \\
+it only allows testing for one concept at a time. However, this problem is solved by DTCAV which tests for multiple features. 
+Grad-CAM and Crowdsourcing are not concept-driven and therefore allow the detection of multiple spurious correlations simultaneously. \\
 The final criterion called \textbf{human understandability} is fulfilled by methods which do not require human examination
 or whose results can be interpreted by a human with expert knowledge. While all methods fulfill this criterion it should
 still be mentioned that the output of Grad-CAM and TCAV can be distorted if they are conducted by
@@ -343,25 +352,22 @@ laypeople. By contrast Crowdsourcing relies on laypeople to detect spurious corr
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|| c c c}
-        & Grad-CAM & TCAV & Crowdsourcing \\
+        & Grad-CAM & TCAV (DTCAV) & Crowdsourcing \\
         \hline \hline
-         Detect s.c. & \checkmark & $\times$ & \checkmark\\
+         Detect s.c. & \checkmark & $\times$(\checkmark) & \checkmark\\
          Detect degree of s.c. & $\times$ & \checkmark & \checkmark \\
-         Efficiency & $\times$ & $\times$ & $\times$ \\
-         Multiple attribute friendliness & \checkmark & $\times$ & \checkmark\\
+         Efficiency & $\times$ & $\times$(\checkmark) & $\times$ \\
+         Multiple attribute friendliness & \checkmark & $\times$(\checkmark) & \checkmark\\
          Human understandability & \checkmark & \checkmark & \checkmark\\
     \end{tabular}
-    \caption{Comparison of all spurious correlation detection methods presented in this report. The evaluation criteria
-    were proposed by Tong \& Kagal \cite{tong2020investigating}. It is clear to see that all methods have different
-    strengths and weaknesses and therefore choosing the right method depends on circumstances such as available time
-    and dataset size}
+    \caption{Comparison of all spurious correlation detection methods presented in this report (Improvements of DTCAV over TCAV in brackets).
+    The evaluation criteria were proposed by \cite{tong2020investigating}.}
     \label{tab:comparison}
 \end{table}
 
 
 \section{Mitigating the impact of spurious correlations}
 \label{sec:mitigatingscs}
-%TODO: BEitrag der einzelnen Paper nennen
 Detecting spurious correlations is only the first step of dealing with them. If one has detected
 spurious correlations in a given image dataset, the best method to mitigate the impact of spurious correlations
 on classification accuracy is to resample the dataset, so that it contains no more spurious correlations.
@@ -477,7 +483,9 @@ After one has decided on which dataset to choose the next step is to scan the da
 and volunteers are available the detection method of choice should be Crowdsourcing because it produces the best output, i.e. if finds the most spurious
 correlations and estimates their degree best. If conducting Crowdsourcing is not feasible then it would make sense to use a hybrid approach between Grad-CAM and TCAV which
 combines the strengths of both algorithms: One should first train a neural network on the dataset chosen in step 1 and inspect its predictions with Grad-CAM
-to come up with assumptions for spurious correlations. Next, one should check if these potential spurious correlations hold up with TCAV. \\
+to come up with assumptions for spurious correlations. Next, one should check if these potential spurious correlations hold up with TCAV. DTCAV can also be used 
+instead of or in addition to the combined approach of Grad-CAM and TCAV, however one should keep in mind that there are some spurious correlations which DTCAV cannot detect
+(e.g. a spurious correlation between the location of an object and the target). \\
 If the previous step did not lead to the detection of any spurious correlation, then the chosen dataset can be used for the given computer vision task. 
 However, in the more likely scenario that one has found spurious correlations, the best way to go is to change or resample the dataset so that it no longer
 contains the spurious correlations that were detected. After that one can start over with scanning the new dataset for spurious correlations again. \\
@@ -499,7 +507,7 @@ More methods to mitigate the impact of spurious correlations can be found in the
 
 \begin{figure}
     \centering
-    \includegraphics[scale=0.30]{sc_workflow.png}
+    \includegraphics[scale=0.42]{sc_workflow.png}
     \caption{Workflow for dealing with image datasets that might contain spurious correlations}
     \label{fig:workflow}
 \end{figure}
@@ -512,14 +520,16 @@ because human intuition is needed in some part of the detection process to deter
 The existing approaches to detect spurious correlations have different strengths and weaknesses and should therefore be used under different circumstances: 
 Crowdsourcing is the most effective approach but requires the most time and effort. TCAV and Grad-CAM can be conducted by only one person. 
 Their strengths complement each other which makes it useful to combine both approaches. Nevertheless, all three methods have one significant downside: 
-They require a large amount of human effort. Future research should therefore focus on automating the detection process, for example by automatically testing
-a dataset for predefined concepts with TCAV (a similar approach has been proposed by Ghorbani et al. \cite{ghorbani2019automating}). \\
-In general, mitigating the impact of spurious correlations on classification accuracy is well studied while automating the process of detecting spurious
-correlations is largely unexplored. It therefore seems like most researchers assume that their datasets contain a certain spurious correlation and 
+They require a large amount of human effort. \\
+DTCAV has successfully overcome the downsides of TCAV and can be considered the only feasible approach
+which currently exists, especially due to its low amount of human effort. However, it still fails to detect some spurious correlations which is why future
+research is needed in this topic. One example of detecting more complex spurious correlations could be by automatically testing a dataset for predefined
+concepts with TCAV.\\
+In general, mitigating the impact of spurious correlations on classification accuracy is studied in much greater detail compared to detecting spurious
+correlations. It therefore seems like most researchers assume that their datasets contain a certain spurious correlation and 
 underestimate the importance to thoroughly examine their dataset to find out which spurious correlations it contains and how severe these are. 
 However, properly checking a dataset for spurious correlations is crucial in order to effectively mitigate their impact and further research
 is needed in this field due to the problems which the existing approaches have to deal with.
-
 
 \printbibliography
 
