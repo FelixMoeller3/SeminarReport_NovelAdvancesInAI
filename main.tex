@@ -112,14 +112,14 @@ text data, plain numbers or images. The problem remains to evaluate if a given c
 Whilst determining the causality of a correlation is often easy for humans because they are able to make use of
 their human intuition, computers would have to inspect an infinite amount of images to classify a correlation as
 (not) spurious. However a machine-learning model only has a limited amount of data to train on and the training
-set it is given could misrepresent the concept it is trained for (i.e. contain spurious correlations). \\
-In such a case, the model would most likely rely on the spurious correlation(s) which is present in the training set.
-An additional challenge in the context of image datasets is feature-extraction. Determining the correlation
+set it is given could misrepresent the concept it is trained for (i.e. contain spurious correlations).
+In such a case, the model would most likely rely on the spurious correlation(s) which is present in the training set. \\
+An additional challenge in the context of image datasets is feature extraction. Determining the correlation
 between a given feature of a dataset and the target attribute (e.g. the correlation between the presence of a special word
-and target attribute) can be automated when the feature is annotated. Extracting high-level features such as
+and the target attribute) can be automated when the feature is annotated. Extracting high-level features such as
 the location of an object in an image or the image angle it is captured from would require training
 an additional classifier to detect the concept. Such a classifier could however make its predictions by exploiting spurious
-correlations which makes this way of feature-extraction unreliable. \\
+correlations which makes this way of feature extraction unreliable. \\
 The last option is to inspect the dataset manually. While this is the most reliable method to detect spurious correlations,
 the sheer size of modern image datasets (IMDB-WIKI: 523,000 images \cite{Rothe-ICCVW-2015}, MS COC0: 328,000 images 
 \cite{lin2015microsoft}) makes manual detection of spurious correlations infeasible.
@@ -148,7 +148,7 @@ anomalies he has found in his sample of the dataset where the answer to such a q
 an open-source natural language processing tool \cite{spaCy}. \\
 In step 2 which is called \textbf{Answer collection} the dataset is again randomly distributed among the volunteers
 of this step. Note that a volunteer only participates in one step of the process to increase its reliability.
-Among with a sample of the dataset a volunteer is confronted with questions generated in step 1 which he answers with the
+Along with a sample of the dataset a volunteer is confronted with questions generated in step 1 which he answers with the
 anomaly he sees in his sample of the dataset. If the volunteer sees no anomaly in his sample, he can skip the question.
 Between steps 2 and 3 a weight $w_{i,2}$ is assigned to each potential spurious correlation $i$ which is the fraction of
 volunteers who provided the most common answer (similar answers to a question are merged).
@@ -163,7 +163,7 @@ After step 3, the total weight $W_{i}=w_{i,2} \cdot w_{i,3}$ is assigned to each
 behind the computation of the total weight is that the severity of each potential spurious correlation is determined by
 how abnormal it is (determined in step 3) \textit{and} by how present it is in the dataset (determined in step 2).
 All spurious correlations with $W_i > t$ are the output of the algorithm where $t$ is a threshold which can be chosen
-by the conductors of the algorithm. \\
+before conducting the algorithm.\\
 Overall, Crowdsourcing can be seen as an effective algorithm because it largely relies on human intuition to detect
 spurious correlations. An additional benefit of this approach is that it is conducted by working directly
 on the dataset which makes it superior to model explanations. \\
@@ -200,7 +200,7 @@ ${w_k}^c$ to each of the $n$ feature maps of the final convolutional layer of th
 \end{align*}
 This can be interpreted as the average importance of each entry of feature map $k$ to the classification of class $c$.
 The output of Grad-CAM is computed by adding up all $n$ feature maps multiplied by their respective weight and putting
-them into a ReLU-function. Said differently, the output of Image $i$ with $c$ being the class of interest looks as follows:
+them into a ReLU-function. Said differently, the output of Grad-CAM for image $i$ with $c$ being the class of interest looks as follows:
 \begin{align*}
     O_{Grad-CAM, i, c} = ReLU(\sum\limits_{k=1}^N {w_k}^c \cdot A^k).
 \end{align*}
@@ -251,7 +251,7 @@ with Grad-CAM is also a challenge because Grad-CAM does not compute a value for 
 \subsection{TCAV}
 TCAV \cite{pmlr-v80-kim18d} is an algorithm that detects spurious correlations by testing if a neural network trained
 on the dataset of interest relies on a user-defined concept when making its predictions. An overview of the algorithm
-can be seen in \hyperref[fig:tcav]{Figure 4} \\
+can be seen in \hyperref[fig:tcav]{Figure 4}. \\
 Step 1 requires the user to \textbf{define a concept} of interest $c$ (e.g. the stripes of a zebra
 or the face of a person). The user then collects a set of images that depict the concept and another set
 containing random images that do \textit{not} belong to the concept. Next, the user chooses a layer $l$ from
@@ -266,13 +266,13 @@ is assigned to each image containing class $k$ in the original dataset with
 \end{align*}
 meaning that $S_{c,k}(i)$ is the directional derivative of the prediction probability for class $k$ being present
 in image $i$ with regard to the concept activation vector. A positive $S_{c,k}(i)$ implies that the presence of
-concept $c$ in image $i$ positively contributed to is classification as class $k$.
+concept $c$ in image $i$ positively contributed to its classification as class $k$.
 The final TCAV-Score for a concept is 
 \begin{align*}
     \frac{|i \in I_k: S_{c,k}(i) > 0 |}{|I_k|}
 \end{align*}
 where $I_k$ is the set of images
-in the dataset that contain class $k$. A concept with a high TCAV-Score is most likely a concept that the classifier
+in the dataset containing class $k$. A concept with a high TCAV-Score is most likely a concept that the classifier
 relies on when making its predictions. \\
 A huge benefit of TCAV is its flexibility towards model architecture: TCAV can be applied to any neural network and
 it is even possible to choose the layer which one wants to investigate. In addition, the algorithm can be automated so
@@ -492,15 +492,15 @@ to come up with assumptions for spurious correlations. Next, one should check if
 instead of or in addition to the combined approach of Grad-CAM and TCAV, however one should keep in mind that there are some spurious correlations which DTCAV cannot detect
 (e.g. a spurious correlation between the location of an object and the target). \\
 If the previous step did not lead to the detection of any spurious correlation, then the chosen dataset can be used for the given computer vision task. 
-However, in the more likely scenario that one has found spurious correlations, the best way to go is to change or resample the dataset so that it no longer
+However, in the more likely scenario that one has found spurious correlations, the best way to go is to change or \textbf{resample the dataset} so that it no longer
 contains the spurious correlations that were detected. After that one can start over with scanning the new dataset for spurious correlations again. \\
 Unfortunately, obtaining new image data is not always possible, for example for legal or financial reasons. In that case, one has to adapt the neural network
 to make it robust to the spurious correlations found in the dataset. Since the dataset could contain a spurious correlation between image angle and target
 as well as a spurious correlation between context and target, one should focus on the prevailing spurious correlation which is the one with either
 the highest weight (Crowdsourcing) or the highest TCAV-Score. \\
-If the prevailing spurious correlation is between image angle and target, then using data augmentation (cropping, flipping and/or erasing parts of the image)
+If the prevailing spurious correlation is between image angle and target, then using \textbf{data augmentation} (cropping, flipping and/or erasing parts of the image)
 can be used to mitigate the impact of such a spurious correlation on classification accuracy \cite{Agarwal_2020_CVPR}.
-If the prevailing spurious correlation is between context and target, then one should use the context suppression algorithm presented in
+If the prevailing spurious correlation is between context and target, then one should use the \textbf{context suppression} algorithm presented in
 \hyperref[sec:contextSuppr]{Section 4.2}. \\
 Note that the workflow does not mention any specific parameters to choose for the algorithms used in the workflow. Specific parameter choices depend on how restrictive
 one wants to be when detecting spurious correlations. However it is important to note that most datasets of a certain size contain a least one spurious correlation.
@@ -512,7 +512,7 @@ More methods to mitigate the impact of spurious correlations can be found in the
 \begin{figure}
     \centering
     \includegraphics[scale=0.42]{sc_workflow.png}
-    \caption{Workflow for dealing with image datasets that might contain spurious correlations}
+    \caption{Workflow for dealing with image datasets that might contain spurious correlations (s.c.s)}
     \label{fig:workflow}
 \end{figure}
 
