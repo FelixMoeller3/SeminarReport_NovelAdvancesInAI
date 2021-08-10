@@ -27,7 +27,7 @@ citestyle=numeric]{biblatex}
 \newpage
 \section{Abstract}
 Neural networks and especially Convolutional Neural Networks (CNN) have revolutionized the field of computer vision in the recent years.
-While neural networks become more refined every year they also become more complex and their predictions are become more incomprehensive.
+While neural networks become more refined every year they also become more complex and their predictions become more incomprehensive.
 However, understanding neural networks is important because it allows researchers to investigate whether their models make
 their predictions by "learning from the right thing" or not. Surprisingly, recent research has shown that many models' predictions
 rely on so-called spurious correlations. Making predictions by exploiting spurious correlation is not always problematic but it can be when
@@ -141,37 +141,29 @@ makes use of the former, while Testing with concept activation vectors (TCAV) \c
 The main principle of Crowdsourcing \cite{10.1145/3366423.3380063} is to distribute the given dataset
 among all multiple volunteers to reduce the individual effort of each person. A brief summary of the approach
 can be seen in \hyperref[fig:crowdsourcing]{Figure 2}. \\
-The proposed algorithm consists of three steps: \textbf{Step 1} is called \textbf{Question generation}.
+The proposed algorithm consists of three steps: step 1 is called \textbf{Question generation}.
 In this step each volunteer is provided with a random sample of the dataset. Next, each volunteer creates questions regarding
 anomalies he has found in his sample of the dataset where the answer to such a question is the given anomaly
-(the answer is also given by the volunteer). Between step 2 and step 1 all similar questions are merged via spaCy,
+(the answer is also given by the volunteer). Between step 1 and step 2 all similar questions are merged via spaCy,
 an open-source natural language processing tool \cite{spaCy}. \\
-In \textbf{Step 2} which is called \textbf{Answer collection} the dataset is again randomly distributed among the volunteers
+In step 2 which is called \textbf{Answer collection} the dataset is again randomly distributed among the volunteers
 of this step. Note that a volunteer only participates in one step of the process to increase its reliability.
-Among with a sample of the dataset a volunteer is confronted with question generated in step 1 which he answers with the
+Among with a sample of the dataset a volunteer is confronted with questions generated in step 1 which he answers with the
 anomaly he sees in his sample of the dataset. If the volunteer sees no anomaly in his sample, he can skip the question.
 Between steps 2 and 3 a weight $w_{i,2}$ is assigned to each potential spurious correlation $i$ which is the fraction of
 volunteers who provided the most common answer (similar answers to a question are merged).
 In addition, each question is transformed into a statement. \\
-In \textbf{Step 3} which is called \textbf{Bias Judgement} another group of volunteers is confronted with the statements
+In step 3 which is called \textbf{Bias Judgement} another group of volunteers is confronted with the statements
 generated at the end of step 2. Most importantly, the volunteers do not see the dataset.
 They then have to answer whether or not the given statements reflect the real world (yes/no answers only).
 At the end of step 3 another weight $w_{i,3}$ is assigned to each potential spurious correlation $i$ which is the fraction
 of workers stating that the statement belonging to a potential spurious correlation is not an accurate
 reflection of the real world. \\
-After step 3, the total weight $W_{i}=w_{i,2} \cdot w_{i,3}$ is assigned to each potential spurious correlation the idea
+After step 3, the total weight $W_{i}=w_{i,2} \cdot w_{i,3}$ is assigned to each potential spurious correlation. The idea
 behind the computation of the total weight is that the severity of each potential spurious correlation is determined by
-how abnormal it is (determined in step 3)\textit{and} by how present it is in the dataset (determined in step 2).
+how abnormal it is (determined in step 3) \textit{and} by how present it is in the dataset (determined in step 2).
 All spurious correlations with $W_i > t$ are the output of the algorithm where $t$ is a threshold which can be chosen
 by the conductors of the algorithm. \\
-
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.315]{crowdsourcing.png}
-    \caption{Crowdsourcing approach to detect spurious correlations in image datasets \cite{10.1145/3366423.3380063}.}
-    \label{fig:crowdsourcing}
-\end{figure}
-
 Overall, Crowdsourcing can be seen as an effective algorithm because it largely relies on human intuition to detect
 spurious correlations. An additional benefit of this approach is that it is conducted by working directly
 on the dataset which makes it superior to model explanations. \\
@@ -190,6 +182,12 @@ Automating all three steps would make this approach a lot more efficient. While 
 questions generated and answered have no pattern to them, step 3 could be partially automated by using answers to previous
 statements if the statements are similar.
 
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.315]{crowdsourcing.png}
+    \caption{Crowdsourcing approach to detect spurious correlations in image datasets \cite{10.1145/3366423.3380063}.}
+    \label{fig:crowdsourcing}
+\end{figure}
 
 \subsection{Grad-CAM}
 Grad-CAM highlights the parts of an image that contributed to a given classification by inspecting its
@@ -201,7 +199,7 @@ ${w_k}^c$ to each of the $n$ feature maps of the final convolutional layer of th
     {w_k}^c = \frac{1}{I \cdot J} \sum\limits_{i=1}^{I} \sum\limits_{j=1}^J \frac{\partial y^c}{\partial {A^k}_{i,j}}.
 \end{align*}
 This can be interpreted as the average importance of each entry of feature map $k$ to the classification of class $c$.
-The output of Grad-CAM is computed by adding up all $n$ feature maps multiplied by their respective weight and plugging
+The output of Grad-CAM is computed by adding up all $n$ feature maps multiplied by their respective weight and putting
 them into a ReLU-function. Said differently, the output of Image $i$ with $c$ being the class of interest looks as follows:
 \begin{align*}
     O_{Grad-CAM, i, c} = ReLU(\sum\limits_{k=1}^N {w_k}^c \cdot A^k).
@@ -219,6 +217,17 @@ Guided Grad-CAM combines the benefits of Grad-CAM whose output is low resolution
 Guided Backpropagation which delivers an explanation in high resolution without being class-discriminative.
 This enables the visualization of fine-grained concepts which the CNN responds to like
 the stripes of the tiger-cat in \hyperref[fig:gradcam]{Figure 3}. \\
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.057]{grad_cam_overview.png}
+    \caption{Overview of Grad-CAM \cite{Selvaraju_2017_ICCV}. Grad-CAM explains
+    a CNN-model by inspecting its final convolutional layer. The output of Grad-CAM can be pointwise multiplied
+    with the output of an algorithm called Guided Backpropagation \cite{springenberg2015striving} to receive a
+    more detailed explanation}
+    \label{fig:gradcam}
+\end{figure}
+\newpage
 In conclusion, Grad-CAM is a visual explanation algorithm which can be used to detect spurious correlations
 in image datasets by inspecting the predictions of a CNN trained on the dataset of interest and checking whether the regions
 highlighted by Grad-CAM fit to concepts that spuriously correlate with the target class.
@@ -228,7 +237,7 @@ A huge advantage of Grad-CAM is that it can be applied to any CNN which is curre
 for most computer vision tasks. In addition, applying Grad-CAM requires no retraining which saves time in the process
 of detecting spurious correlations. Another benefit of Grad-CAM is the simplicity of its output:
 Since Grad-CAM explains the classification via a  simple heatmap, the explanation can be understood by anyone
-and no machine-learning expertise is needed. 
+and no machine-learning expertise is needed. \\
 However, since Grad-Cam explains the classification of a model trained on the dataset of interest,
 it can only show the spurious correlations that the given model exploits. This can lead to problems because
 different models can rely on different (spurious) correlations when making their predictions.
@@ -238,29 +247,19 @@ most time in the detection process and slows it down considerably. Estimating th
 with Grad-CAM is also a challenge because Grad-CAM does not compute a value for a given spurious correlation.
 
 
-\begin{figure}
-    \centering
-    \includegraphics[scale=0.057]{grad_cam_overview.png}
-    \caption{Overview of Grad-CAM \cite{Selvaraju_2017_ICCV}. Grad-CAM explains
-    a CNN-model by inspecting its final convolutional layer. The output of Grad-CAM can be pointwise multiplied
-    with the output of an algorithm called Guided Backpropagation \cite{springenberg2015striving} to receive a
-    more detailed explanation}
-    \label{fig:gradcam}
-\end{figure}
-
 
 \subsection{TCAV}
 TCAV \cite{pmlr-v80-kim18d} is an algorithm that detects spurious correlations by testing if a neural network trained
 on the dataset of interest relies on a user-defined concept when making its predictions. An overview of the algorithm
 can be seen in \hyperref[fig:tcav]{Figure 4} \\
-\textbf{Step 1} requires the user to \textbf{define a concept} of interest $c$ (e.g. the stripes of a zebra
+Step 1 requires the user to \textbf{define a concept} of interest $c$ (e.g. the stripes of a zebra
 or the face of a person). The user then collects a set of images that depict the concept and another set
 containing random images that do \textit{not} belong to the concept. Next, the user chooses a layer $l$ from
 the neural network which he wants to investigate. \\
-In \textbf{Step 2} the images collected in Step 1 are fed into the neural network and a linear classifier is trained
+In step 2 the images collected in step 1 are fed into the neural network and a linear classifier is trained
 to separate the activations at layer $l$ that belong to the concept from the activations of the random images.
 The vector orthogonal to the decision boundary is the \textbf{concept activation vector} $v_c$ for the given concept $c$.\\
-In \textbf{Step 3} a \textbf{TCAV-Score} is assigned to the user-defined concept. To do so, a score $S_{c,k}(i)$
+In step 3 a \textbf{TCAV-Score} is assigned to the user-defined concept. To do so, a score $S_{c,k}(i)$
 is assigned to each image containing class $k$ in the original dataset with 
 \begin{align*}
     S_{c,k}(i) = \frac{\partial p_k(i)}{\partial v_c},
@@ -278,25 +277,25 @@ relies on when making its predictions. \\
 A huge benefit of TCAV is its flexibility towards model architecture: TCAV can be applied to any neural network and
 it is even possible to choose the layer which one wants to investigate. In addition, the algorithm can be automated so
 that all the user has to do is define the concept. This is important because it allows people without any machine-learning
-knowledge to investigate the model. \\
-However like Grad-CAM, TCAV is an algorithm that explains a given model an can
+knowledge to investigate if the model relies on spurious correlations. \\
+However like Grad-CAM, TCAV is an algorithm that explains a specific model and can
 therefore only detect spurious correlations which the given model exploits. Another problem with TCAV
 is that it suffers from the \enquote{garbage in, garbage out}-principle: a poorly-defined concept can lead to a low
 TCAV-Score even if the concept is important. This can happen quite often because properly defining a concept can take time
-since one has to carefully select images that adequately represent the concept. Tong \& Kagal therefore propose to choose
-images that contain multiple concepts of interest to make the process of concept definition
-more efficient \cite{tong2020investigating}. \\ 
+since one has to carefully select images that adequately represent the concept. To make the process of concept definition
+more efficient, one can choose images that contain multiple concepts of interest \cite{tong2020investigating}. \\ 
 The biggest drawback of TCAV is that it can only check if the model exploits a spurious correlation if the user has the assumption 
 that this is the case. This means that spurious correlations which do not often occur and are therefore not assumed 
 to be present in the dataset cannot be detected when detecting spurious correlations solely with TCAV. The underlying problem is
 that it is difficult to extract features which could be spuriously correlated with the target, a challenge mentioned in
-\hyperref[sec:challenged]{Section 2.4}. \textbf{Discovery TCAV (DTCAV)} \cite{ghorbani2019automating} attempts to combat this challenge by
+\hyperref[sec:challenges]{Section 2.4}. \textbf{Discovery TCAV (DTCAV)} \cite{ghorbani2019automating} attempts to combat this challenge by
 automating feature extraction from image datasets and subsequently checking their importance with TCAV. More precisely, DTCAV segments a
 given set of images from the class of interest (so-called \enquote{concept discovery images}) multiple times with different granularity to
-collect possible concepts. Duplicate segments may occur in this step and if they do, then duplicates are removed. Next, these segments are
+collect possible concepts. Duplicate segments may occur in this step and if they do they are removed. Next, these segments are
 resized to the input size of the neural network and their activations are inspected at a bottleneck layer of the neural network which is being
 investigated. Segments with similar activations are then clustered to form a concept and outliers are removed. The idea behind this is that images
 with similar activations should depict similar concepts. Finally, a TCAV score is assigned to each previously constructed concept. \\
+\newpage
 DTCAV can be considered a breakthrough in the detection of spurious correlations because it automates feature extraction and because it is the first
 approach which detects spurious correlations in images with a reasonable amount of human effort. The only human effort DTCAV requires is to determine
 whether the important concepts given by DTCAV should be important for classification or not. \\
@@ -307,7 +306,7 @@ location of an object in the image. This is caused by upscaling each segment to 
 segment in the original image is lost during upscaling.
 
 
-\begin{figure}
+\begin{figure}[!h]
     \centering
     \includegraphics[scale=0.45]{tcav.png}
     \caption{Overview of TCAV \cite{pmlr-v80-kim18d}. TCAV can be used to determine if a user-defined
@@ -322,11 +321,11 @@ segment in the original image is lost during upscaling.
 The three methods to detect spurious correlations mentioned in this report all have different strengths and weaknesses.
 However to determine the best method to detect spurious correlations it is beneficial to evaluate the quality of each method
 via the same criteria. \cite{tong2020investigating} proposed 5 criteria which a reliable method to
-detect spurious correlations should fulfill. An overview can be seen in \hyperref[tab:comparison]{Table 1}.\\
+detect spurious correlations should fulfill (overview in \hyperref[tab:comparison]{Table 1}).\\
 The first criterion is \textbf{detecting the spurious correlation}. This means that the method itself should detect
 the spurious correlation without any input other than the dataset. Grad-CAM and Crowdsourcing fulfill this criterion
 but TCAV can only confirm or deny the assumption that a given spurious correlation exists in a dataset. Discovery TCAV automatically
-creates concepts and test their relevance and can therefore detect spurious correlations by itself.\\
+creates concepts and tests their relevance and can therefore detect spurious correlations by itself.\\
 Next, a method to detect spurious correlations should \textbf{detect the degree of the spurious correlation}.
 Quantifying different spurious correlations is important to determine how prevalent a spurious correlation is in a dataset.
 The experiment shown in \hyperref[sec:motivation]{Section 2.3} demonstrates how differently varying degrees of the same
@@ -342,17 +341,12 @@ not only because of the amount of human effort it requires but especially for th
 volunteers is needed. \\
 The next criterion is called \textbf{multiple attribute friendliness}. Multiple attribute friendliness means that the
 method can detect multiple spurious correlations at the same time. TCAV is not multiple-attribute-friendly because
-it only allows testing for one concept at a time. However, this problem is solved by DTCAV which tests for multiple features. 
+it only allows testing for one concept at a time. However, this problem is solved by DTCAV which tests for multiple features at the same time. 
 Grad-CAM and Crowdsourcing are not concept-driven and therefore allow the detection of multiple spurious correlations simultaneously. \\
-The final criterion called \textbf{human understandability} is fulfilled by methods which do not require human examination
-or whose results can be interpreted by a human with expert knowledge. While all methods fulfill this criterion it should
-still be mentioned that the output of Grad-CAM and TCAV can be distorted if they are conducted by
-laypeople. By contrast Crowdsourcing relies on laypeople to detect spurious correlations.
-
 \begin{table}[h!]
     \centering
     \begin{tabular}{c|| c c c}
-        & Grad-CAM & TCAV (DTCAV) & Crowdsourcing \\
+        & Grad-CAM & (D)TCAV & Crowdsourcing \\
         \hline \hline
          Detect s.c. & \checkmark & $\times$(\checkmark) & \checkmark\\
          Detect degree of s.c. & $\times$ & \checkmark & \checkmark \\
@@ -364,6 +358,11 @@ laypeople. By contrast Crowdsourcing relies on laypeople to detect spurious corr
     The evaluation criteria were proposed by \cite{tong2020investigating}.}
     \label{tab:comparison}
 \end{table}
+\newpage
+The final criterion called \textbf{human understandability} is fulfilled by methods which do not require human examination
+or whose results can be interpreted by a human with expert knowledge. While all methods fulfill this criterion it should
+still be mentioned that the output of Grad-CAM and TCAV can be distorted if they are conducted by
+laypeople. By contrast Crowdsourcing relies on laypeople to detect spurious correlations.
 
 
 \section{Mitigating the impact of spurious correlations}
@@ -379,7 +378,7 @@ this section are the following: \cite{bellamy2018ai} proposed a framework which 
 to mitigate the impact of spurious correlations before, during and after training. \cite{Kim_2019_CVPR} introduced a 
 regularization algorithm which unlearns the information given by the spurious correlation in the training set and achieves accuracies
 comparable to neural networks trained on datasets without spurious correlations. \cite{Wang_2020_CVPR} compares existing strategies
-to mitigate the impact of spurious correlations and found that domain-independent training was most effective one.
+to mitigate the impact of spurious correlations and found that domain-independent training was the most effective one.
 
 
 \subsection{Why increasing model size exacerbates spurious correlations}
@@ -419,8 +418,8 @@ Spurious correlations between context and target are among the most common spuri
 therefore important to mitigate their impact on classification performance. The problem with such spurious correlations
 is that they are not always harmful. The context that an object occurs with can also contain information which is helpful
 for classification. So the challenge in such cases is to improve classification accuracy when an object occurs without
-its context without compromising accuracy when an object co-occurs with its context. This was also the goal of a
-new training procedure proposed by \cite{Singh_2020_CVPR} which works as follows
+its context without compromising accuracy when an object co-occurs with its context. This was also the goal of a 
+training procedure proposed by \cite{Singh_2020_CVPR} which works as follows
 (overview in \hyperref[fig:contextSupprImg]{Figure 6}): \\
 First, one needs to train a classifier on the given dataset which contains spurious correlations between labeled classes.
 Note that the dataset needs to be multi-labeled. Next, for each class $c$ in the training set, a second class $d$ is
@@ -433,19 +432,25 @@ To compute how class $d$ effects the prediction of class $c$ the following metri
 where $p(i,c)$ is the prediction probability for class $c$ being present in Image $i$ given by the classifier
 trained in the beginning. A high $e_{sc}(c,d)$ indicates that the classifier relies on $d$ when predicting $c$
 because the average prediction probability for $c$ drops significantly when $d$ is not present in the image. \\
-According to metric $e_{sc}$, a list of the $K$ spurious correlations with the larget effect is compiled where $K$
+According to metric $e_{sc}$, a list of the $K$ spurious correlations with the largest effect is compiled where $K$
 is a parameter which can be chosen by the conductors of the algorithm beforehand. \\
-Now during training, the goal of this training procedure is to train two disjoint feature subspaces for class $c$ and $d$
+During training, the goal of this procedure is to train two disjoint feature subspaces for class $c$ and $d$
 if the spurious correlation between $c$ and $d$ is in the compiled list. The idea is to split the weights which account
 for class $c$ from those for class $d$. More precisely, if $x \in \mathbb{R}^N$ is the output of the final pooling layer
 in the neural network trained on the dataset of interest the weights that $x$ is multiplied with can be denoted in a Matrix
 $W \in \mathbb{R}^{N \times M}$ so that the output for the next layer is $y=W^Tx \in \mathbb{R}^M$. To obtain the two
 feature subspaces, $W$ and $x$ are row-wise split randomly to obtain $W_c,W_d \in \mathbb{R}^{\frac{N}{2} \times M}$
-and $x_c, x_d \in \mathbb{R}^{\frac{N}{2}}$. If class $c$ co-occurs with class $d$ during training, then $y$ is computed
-as $y={W_c}^T x_c + {W_d}^T x_d$ meaning that the information gained from the co-occurring class is used for classification
+and $x_c, x_d \in \mathbb{R}^{\frac{N}{2}}$. If class $c$ co-occurs with class $d$ during training, then $y$ is computed as 
+\begin{align*}
+    y={W_c}^T x_c + {W_d}^T x_d
+\end{align*}
+meaning that the information gained from the co-occurring class is used for classification
 and to adjust weights. So in this case, the training procedure is no different from that of a standard neural network.
-However, if class $c$ occurs in absence of class $d$ then $y$ is computed as $y={W_c}^T x_c + {W_d}^T \bar{x}_d$ where
-$\bar{x}_d$ is the average of $x_d$ over the last 10 mini-batches. In addition backpropagation on the weights of $W_d$
+However, if class $c$ occurs in absence of class $d$ then $y$ is computed as 
+\begin{align*}
+    y={W_c}^T x_c + {W_d}^T \bar{x}_d
+\end{align*}
+where $\bar{x}_d$ is the average of $x_d$ over the last 10 mini-batches. In addition backpropagation on the weights of $W_d$
 is disabled, meaning that only the weights belonging to $W_c$ are adjusted. Intuitively the neural network is forced to
 learn from the information provided by class $c$ and the information obtained from the feature subspace of class $d$ is suppressed.
 Note that $x_d$ could be set to any constant value. Setting $x_d = \bar{x}_d$ was a decision which \cite{Singh_2020_CVPR} state improves
@@ -453,7 +458,7 @@ stability during training. Also note that the neural network is only different f
 The effectiveness of their algorithm was also shown in studies conducted by \cite{Singh_2020_CVPR} on the MS COCO dataset \cite{lin2015microsoft}:
 they improved the accuracy for \enquote{ski} and \enquote{skateboard}, the two classes which were affected most by their context,
 by 24.2 and 19.5 percentage points respectively. By inspecting the classifications made by a neural network trained with their
-approach they verified that the network focuses on the object when is is present without its context while still letting the context contribute to the classification when it is present. \\
+approach they verified that the network focuses on the object when it is present without its context while still letting the context contribute to the classification when it is present. \\
 Overall, the approach proposed by \cite{Singh_2020_CVPR} is a promising one. Nevertheless, it fails to account for spurious correlations between
 more than two classes. More problematic is that it only seems to effectively mitigate the impact of the most severe spurious correlations.
 When investigating the 20 classes suffering from the most severe spurious correlations instead of the top 2, the performance increase
@@ -475,12 +480,12 @@ classes occur exclusively.
 \section{How to deal with datasets that might contain spurious correlations}
 The following workflow on how to handle datasets that could contain spurious correlations summarizes the findings of the previous sections.
 An overview of the proposed workflow can be seen in \hyperref[fig:workflow]{Figure 7}. \\
-The first step is to create or choose a dataset. Which of the two methods is the best depends largely on the target. If the goal is to classify or
+The first step is to \textbf{create or choose a dataset}. Which of the two methods is the best depends largely on the target. If the goal is to classify or
 detect common objects such as cars then it would be better to work with existing datasets such as CompCars in this case \cite{Yang_2015_CVPR}.
 However, if the target is a rare or extraordinary concept such as a specific illness then the best approach is to create a dataset as most likely there will
 not be any existing ones. In other cases, a hybrid approach could make sense. \\
-After one has decided on which dataset to choose the next step is to scan the dataset for spurious correlations. In case time is not an issue
-and volunteers are available the detection method of choice should be Crowdsourcing because it produces the best output, i.e. if finds the most spurious
+After one has decided on which dataset to choose the next step is to \textbf{scan the dataset for spurious correlations}. In case time is not an issue
+and volunteers are available the detection method of choice should be Crowdsourcing because it produces the best output, i.e. it finds the most spurious
 correlations and estimates their degree best. If conducting Crowdsourcing is not feasible then it would make sense to use a hybrid approach between Grad-CAM and TCAV which
 combines the strengths of both algorithms: One should first train a neural network on the dataset chosen in step 1 and inspect its predictions with Grad-CAM
 to come up with assumptions for spurious correlations. Next, one should check if these potential spurious correlations hold up with TCAV. DTCAV can also be used 
@@ -495,12 +500,11 @@ as well as a spurious correlation between context and target, one should focus o
 the highest weight (Crowdsourcing) or the highest TCAV-Score. \\
 If the prevailing spurious correlation is between image angle and target, then using data augmentation (cropping, flipping and/or erasing parts of the image)
 can be used to mitigate the impact of such a spurious correlation on classification accuracy \cite{Agarwal_2020_CVPR}.
-supports this thesis. 
 If the prevailing spurious correlation is between context and target, then one should use the context suppression algorithm presented in
 \hyperref[sec:contextSuppr]{Section 4.2}. \\
 Note that the workflow does not mention any specific parameters to choose for the algorithms used in the workflow. Specific parameter choices depend on how restrictive
 one wants to be when detecting spurious correlations. However it is important to note that most datasets of a certain size contain a least one spurious correlation.
-Therefore the goal should not be to eliminate every single spurious correlation one has found by only the ones that lead to a significant loss in
+Therefore the goal should not be to eliminate every single spurious correlation one has found but only the ones that lead to a significant loss in
 classification accuracy. In addition, the suggested methods to mitigate the impact of a given spurious correlation are only simplified suggestions.
 As mentioned before, mitigating the impact of spurious correlations has been studied to a greater extent than detecting them. 
 More methods to mitigate the impact of spurious correlations can be found in the sources mentioned in \hyperref[sec:mitigatingscs]{Section 4}.
@@ -522,10 +526,10 @@ Crowdsourcing is the most effective approach but requires the most time and effo
 Their strengths complement each other which makes it useful to combine both approaches. Nevertheless, all three methods have one significant downside: 
 They require a large amount of human effort. \\
 DTCAV has successfully overcome the downsides of TCAV and can be considered the only feasible approach
-which currently exists, especially due to its low amount of human effort. However, it still fails to detect some spurious correlations which is why future
+which currently exists, especially due to its low amount of human effort. However, it still fails to detect some spurious correlations which is why further
 research is needed in this topic. One example of detecting more complex spurious correlations could be by automatically testing a dataset for predefined
 concepts with TCAV.\\
-In general, mitigating the impact of spurious correlations on classification accuracy is studied in much greater detail compared to detecting spurious
+In general, mitigating the impact of spurious correlations on classification accuracy is studied in greater detail compared to detecting spurious
 correlations. It therefore seems like most researchers assume that their datasets contain a certain spurious correlation and 
 underestimate the importance to thoroughly examine their dataset to find out which spurious correlations it contains and how severe these are. 
 However, properly checking a dataset for spurious correlations is crucial in order to effectively mitigate their impact and further research
